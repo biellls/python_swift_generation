@@ -6,7 +6,7 @@ import jinja2 as jinja2
 
 class NameAndType(NamedTuple):
     name: str
-    type: str
+    type: Optional[str]
 
 
 class Function(NamedTuple):

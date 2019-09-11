@@ -2,6 +2,7 @@ from math import sqrt
 
 
 class BasicClass:
+    __slots__ = ['x', 'y']
     dimensions: int = 2
 
     def __init__(self, x: float, y: float):

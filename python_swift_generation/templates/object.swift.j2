@@ -1,0 +1,31 @@
+{% macro function_args_definition(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.type | convert_to_swift_type }}{{ "," if not loop.last }}{% endfor %}{% endmacro %}
+{% macro function_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}{{ "," if not loop.last }}{% endfor %}{% endmacro %}
+import PythonKit
+
+class {{ swift_object_name }} {
+    static let wrappedClass = Python.import("{{ module }}").{{object_name}}
+    let wrappedInstance: PythonObject
+
+    {% for static_var in static_vars %}
+    static var {{ static_var.name }}: {{ static_var.type | convert_to_swift_type }} { return {{ static_var.type | convert_to_swift_type }}(wrappedClass.{{ static_var.name }}) }
+    {% endfor %}
+    {% for instance_var in instance_vars %}
+    var {{ instance_var.name }}: {{ instance_var.type | convert_to_swift_type }} { return {{ instance_var.type | convert_to_swift_type }}(wrappedInstance.{{ instance_var.name }}) }
+    {% endfor %}
+
+    // TODO: Add default values
+    init({{ function_args_definition(init_params) }}) {
+        self.wrappedInstance = {{ swift_object_name }}.wrappedClass({{ function_named_args_call(init_params) }})
+    }
+
+    // TODO: Add static methods and classmethods
+    {% for instance_method in instance_methods %}
+    func {{ instance_method.name }}({{ function_args_definition(instance_method.args) }}) {% if instance_method.return_type %}-> {{ instance_method.return_type | convert_to_swift_type }} {% endif %}{
+        {% if instance_method.return_type %}
+        return {{ instance_method.return_type | convert_to_swift_type }}(wrappedInstance.{{instance_method.name}}({{ function_named_args_call(instance_method.args) }}))
+        {% else %}
+        wrappedInstance.{{instance_method.name}}({{ function_named_args_call(instance_method.args) }})
+        {% endif %}
+    }
+    {% endfor %}
+}

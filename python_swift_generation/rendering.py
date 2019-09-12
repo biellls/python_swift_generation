@@ -75,6 +75,6 @@ if __name__ == '__main__':
         instance_vars=[NameAndType(name='x', type=None), NameAndType(name='y', type=None)],
         init_params=[NameAndType(name='x', type=float), NameAndType(name='y', type=float)],
         instance_methods=[Function(name='magnitude', args=[], return_type=float)],
-        static_methods=[],
+        static_methods=[Function(name='a', args=[], return_type=Optional[int])],
     ).render()
     Path('/Users/biellls/Development/Swift/chip8/Sources/chip8/basic.swift').write_text(obj)

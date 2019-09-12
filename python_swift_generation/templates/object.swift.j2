@@ -1,5 +1,12 @@
 {% macro function_args_definition(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.mapped_type }}{{ "," if not loop.last }}{% endfor %}{% endmacro %}
 {% macro function_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}{{ "," if not loop.last }}{% endfor %}{% endmacro %}
+{% macro wrapped_return(method, static) %}let val = {{ 'wrappedClass' if static else 'wrappedInstance' }}.{{method.name}}({{ function_named_args_call(method.args) }})
+{% if method.return_type and method.mapped_return_type.endswith('?') %}
+        if val == Python.None { return nil } else { return {{ method.mapped_return_type.replace('?', '') }}(val) }
+{% elif method.return_type %}
+        return {{ method.mapped_return_type }}(val)
+{% endif %}
+{% endmacro %}
 import PythonKit
 
 class {{ swift_object_name }} {
@@ -18,14 +25,16 @@ class {{ swift_object_name }} {
         self.wrappedInstance = {{ swift_object_name }}.wrappedClass({{ function_named_args_call(init_params) }})
     }
 
-    // TODO: Add static methods and classmethods
+    // TODO: Add classmethods
     {% for instance_method in instance_methods %}
     func {{ instance_method.name }}({{ function_args_definition(instance_method.args) }}) {% if instance_method.return_type %}-> {{ instance_method.mapped_return_type }} {% endif %}{
-        {% if instance_method.return_type %}
-        return {{ instance_method.mapped_return_type }}(wrappedInstance.{{instance_method.name}}({{ function_named_args_call(instance_method.args) }}))
-        {% else %}
-        wrappedInstance.{{instance_method.name}}({{ function_named_args_call(instance_method.args) }})
-        {% endif %}
+        {{ wrapped_return(instance_method, false) }}
+    }
+    {% endfor %}
+
+    {% for static_method in static_methods %}
+    static func {{ static_method.name }}({{ function_args_definition(static_method.args) }}) {% if static_method.return_type %}-> {{ static_method.mapped_return_type }} {% endif %}{
+        {{ wrapped_return(static_method, true) }}
     }
     {% endfor %}
 }

@@ -76,3 +76,11 @@ def create_class_orm(cls) -> SwiftClass:
         init_params=init_params,
         methods=get_functions(cls),
     )
+
+
+if __name__ == '__main__':
+    from samples import basic_module
+    from pathlib import Path
+
+    mod = create_module_orm(basic_module).render()
+    Path('/Users/biellls/Development/Swift/chip8/Sources/chip8/basic_module.swift').write_text(mod)

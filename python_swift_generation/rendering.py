@@ -63,8 +63,15 @@ class SwiftModule(NamedTuple):
     classes: List[SwiftClass]
 
     @property
-    def file_name(self):
-        return f'TPython{self.module_name}'
+    def swift_module_name(self):
+        return f'TPython{self.module_name.replace(".", "_")}'
+
+    @property
+    def as_dict(self):
+        return dict(swift_class_name=self.swift_module_name, **self._asdict())
+
+    def render(self):
+        return _render('module.swift.j2', self.as_dict)
 
 
 def _convert_to_swift_type(python_type):

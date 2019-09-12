@@ -50,8 +50,10 @@ def get_functions(cls) -> List[Function]:
 
 
 def create_class_orm(cls) -> SwiftObject:
-    static_vars = [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items()]
-    instance_vars = [NameAndType(name=x, type=None) for x in cls.__slots__] if hasattr(cls, '__slots__') else []
+    static_vars = [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items() if getattr(cls, k, False)]
+    instance_vars = \
+        [NameAndType(name=x, type=None) for x in cls.__slots__] if hasattr(cls, '__slots__') else [] + \
+        [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items()]
     init_params = [NameAndType(name=k, type=v) for k, v in inspect.getfullargspec(cls.__init__).annotations.items()]
     return SwiftObject(
         object_name=cls.__name__,

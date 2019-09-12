@@ -16,6 +16,7 @@ class BasicClass:
 
 class BasicClass2:
     a: Any
+    b: Any = 3
 
     # noinspection PyMethodMayBeStatic
     def f(self):

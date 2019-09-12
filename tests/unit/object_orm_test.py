@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from python_swift_generation.core import create_class_orm
 from python_swift_generation.rendering import SwiftObject, NameAndType, Function
-from samples.basic import BasicClass, BasicClass2, BasicClass3
+from samples.basic import BasicClass, BasicClass2, BasicClass3, BasicClass4
 
 
 def test_simple_create_object_orm():
@@ -20,8 +20,8 @@ def test_simple_create_object_orm2():
     assert create_class_orm(BasicClass2) == SwiftObject(
         object_name='BasicClass2',
         module='samples.basic',
-        static_vars=[NameAndType(name='a', type=Any)],
-        instance_vars=[],
+        static_vars=[NameAndType(name='b', type=Any)],
+        instance_vars=[NameAndType(name='a', type=Any), NameAndType(name='b', type=Any)],
         init_params=[],
         methods=[Function(name='f', args=[], return_type=None, cls='instancemethod')],
     )

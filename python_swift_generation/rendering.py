@@ -1,18 +1,26 @@
 from pathlib import Path
-from typing import NamedTuple, List, Optional
+from typing import NamedTuple, List, Optional, Any
 
 import jinja2 as jinja2
 
 
 class NameAndType(NamedTuple):
     name: str
-    type: Optional[str]
+    type: Optional[type]
+
+    @property
+    def mapped_type(self):
+        return _convert_to_swift_type(self.type)
 
 
 class Function(NamedTuple):
     name: str
     args: List[NameAndType]
-    return_type: Optional[str] = None
+    return_type: Optional[type] = None
+
+    @property
+    def mapped_return_type(self):
+        return _convert_to_swift_type(self.return_type)
 
 
 class SwiftObject(NamedTuple):
@@ -35,8 +43,10 @@ class SwiftObject(NamedTuple):
         return _render('object.swift.j2', self.as_dict)
 
 
-def _convert_to_swift_type(python_type: str):
-    return f'TPython{python_type.capitalize()}'
+def _convert_to_swift_type(python_type):
+    if python_type == Any or python_type is None:
+        return 'PythonObject'
+    return f'TPython{python_type.__name__.capitalize()}'
 
 
 def _render(template_name: str, context: dict):
@@ -58,9 +68,9 @@ if __name__ == '__main__':
     obj = SwiftObject(
         object_name='BasicClass',
         module='basic',
-        static_vars=[NameAndType(name='dimensions', type='int')],
-        instance_vars=[NameAndType(name='x', type='float'), NameAndType(name='y', type='float')],
-        init_params=[NameAndType(name='x', type='float'), NameAndType(name='y', type='float')],
-        instance_methods=[Function(name='magnitude', args=[], return_type='float')]
+        static_vars=[NameAndType(name='dimensions', type=int)],
+        instance_vars=[NameAndType(name='x', type=None), NameAndType(name='y', type=None)],
+        init_params=[NameAndType(name='x', type=float), NameAndType(name='y', type=float)],
+        instance_methods=[Function(name='magnitude', args=[], return_type=float)]
     ).render()
     Path('/Users/biellls/Development/Swift/chip8/Sources/chip8/basic.swift').write_text(obj)

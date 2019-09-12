@@ -1,4 +1,5 @@
 from math import sqrt
+from typing import Any
 
 
 class BasicClass:
@@ -11,3 +12,8 @@ class BasicClass:
 
     def magnitude(self) -> float:
         return sqrt(self.x * self.x + self.y * self.y)
+
+
+class BasicClass2:
+    a: str
+    b: Any

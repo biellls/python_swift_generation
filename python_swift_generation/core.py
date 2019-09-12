@@ -28,19 +28,17 @@ def get_module_functions(module):
 
 def get_user_attributes(cls):
     excluded = dir(type('dummy', (object,), {}))
-    return [item
-            for item in inspect.getmembers(cls)
-            if item[0] not in excluded]
+    return [item for item in inspect.getmembers(cls) if item[0] not in excluded]
 
 
 def create_class_orm(cls) -> SwiftObject:
-    static_vars = [NameAndType(name=k, type=v.__name__) for k, v in cls.__annotations__.items()]
+    static_vars = [NameAndType(name=k, type=v) for k, v in cls.__annotations__.items()]
     instance_vars = [NameAndType(name=x, type=None) for x in cls.__slots__] if hasattr(cls, '__slots__') else []
     instance_methods = [
-        Function(name=func.__name__, args=[], return_type=func.__annotations__.get('return').__name__)
+        Function(name=func.__name__, args=[], return_type=func.__annotations__.get('return'))
         for func in
         [getattr(cls, func) for func in dir(cls) if callable(getattr(cls, func)) and not func.startswith("__")]]
-    init_params = [NameAndType(name=k, type=v.__name__) for k, v in inspect.getfullargspec(cls.__init__).annotations.items()]
+    init_params = [NameAndType(name=k, type=v) for k, v in inspect.getfullargspec(cls.__init__).annotations.items()]
     return SwiftObject(
         object_name=cls.__name__,
         module=cls.__module__,

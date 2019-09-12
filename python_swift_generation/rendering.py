@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import NamedTuple, List, Optional, Any
+from typing import NamedTuple, List, Optional, Any, Union
 
 import jinja2 as jinja2
 
@@ -30,6 +30,7 @@ class SwiftObject(NamedTuple):
     instance_vars: List[NameAndType]
     init_params: List[NameAndType]
     instance_methods: List[Function]
+    static_methods: List[Function]
 
     @property
     def swift_object_name(self):
@@ -46,6 +47,8 @@ class SwiftObject(NamedTuple):
 def _convert_to_swift_type(python_type):
     if python_type == Any or python_type is None:
         return 'PythonObject'
+    elif python_type.__class__ == type(Union) and python_type.__args__[1] == type(None):
+        return _convert_to_swift_type(python_type.__args__[0]) + '?'
     return f'TPython{python_type.__name__.capitalize()}'
 
 
@@ -71,6 +74,7 @@ if __name__ == '__main__':
         static_vars=[NameAndType(name='dimensions', type=int)],
         instance_vars=[NameAndType(name='x', type=None), NameAndType(name='y', type=None)],
         init_params=[NameAndType(name='x', type=float), NameAndType(name='y', type=float)],
-        instance_methods=[Function(name='magnitude', args=[], return_type=float)]
+        instance_methods=[Function(name='magnitude', args=[], return_type=float)],
+        static_methods=[],
     ).render()
     Path('/Users/biellls/Development/Swift/chip8/Sources/chip8/basic.swift').write_text(obj)

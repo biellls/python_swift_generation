@@ -1,5 +1,5 @@
 from math import sqrt
-from typing import Any
+from typing import Any, Optional
 
 
 class BasicClass:
@@ -15,5 +15,14 @@ class BasicClass:
 
 
 class BasicClass2:
-    a: str
-    b: Any
+    a: Any
+
+    # noinspection PyMethodMayBeStatic
+    def f(self):
+        return 2
+
+
+class BasicClass3:
+    @staticmethod
+    def a() -> Optional[int]:
+        return 2

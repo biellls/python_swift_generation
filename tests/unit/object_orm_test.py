@@ -12,8 +12,7 @@ def test_simple_create_object_orm():
         static_vars=[NameAndType(name='dimensions', type=int)],
         instance_vars=[NameAndType(name='x', type=None), NameAndType(name='y', type=None)],
         init_params=[NameAndType(name='x', type=float), NameAndType(name='y', type=float)],
-        instance_methods=[Function(name='magnitude', args=[], return_type=float)],
-        static_methods=[],
+        methods=[Function(name='magnitude', args=[], return_type=float, cls='instancemethod')],
     )
 
 
@@ -24,8 +23,7 @@ def test_simple_create_object_orm2():
         static_vars=[NameAndType(name='a', type=Any)],
         instance_vars=[],
         init_params=[],
-        instance_methods=[Function(name='f', args=[], return_type=None)],
-        static_methods=[],
+        methods=[Function(name='f', args=[], return_type=None, cls='instancemethod')],
     )
 
 
@@ -37,7 +35,6 @@ def test_simple_create_object_orm3():
         static_vars=[],
         instance_vars=[],
         init_params=[],
-        instance_methods=[],
-        static_methods=[Function(name='a', args=[], return_type=Optional[int])],
+        methods=[Function(name='a', args=[], return_type=Optional[int], cls='staticmethod')],
     )
-    assert swift_obj.static_methods[0].mapped_return_type == 'TPythonInt?'
+    assert swift_obj.methods[0].mapped_return_type == 'TPythonInt?'

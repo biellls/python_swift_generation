@@ -1,0 +1,11 @@
+public let TPython = TypedPythonInterface()
+
+public class TypedPythonInterface {
+    let `import` = ImportInterface()
+}
+
+public class ImportInterface {
+    {% for module in modules %}
+    let {{ module.module_name }} = {{ module.swift_module_name }}.self
+    {% endfor %}
+}

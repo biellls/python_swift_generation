@@ -2,7 +2,7 @@ import inspect
 from importlib import util
 from typing import List
 
-from python_swift_generation.rendering import SwiftClass, NameAndType, Function, SwiftModule
+from python_swift_generation.rendering import SwiftClass, NameAndType, Function, SwiftModule, _render
 
 
 class BrokenImportError(Exception):
@@ -78,9 +78,19 @@ def create_class_orm(cls) -> SwiftClass:
     )
 
 
-if __name__ == '__main__':
-    from samples import basic_module
-    from pathlib import Path
+def create_typed_python(modules: List[SwiftModule], target_path: str):
+    for module in modules:
+        code = module.render()
+        (Path(target_path) / f'{module.swift_module_name}.swift').write_text(code)
+    code = _render('typed_python.swift.j2', {'modules': modules})
+    (Path(target_path) / f'typed_python.swift').write_text(code)
 
-    mod = create_module_orm(basic_module).render()
-    Path('/Users/biellls/Development/Swift/chip8/Sources/chip8/basic_module.swift').write_text(mod)
+
+if __name__ == '__main__':
+    from pathlib import Path
+    import sys
+    sys.path.append(str(Path(__file__).parent.parent / 'samples'))
+    import basic_module
+
+    mod = create_module_orm(basic_module)
+    create_typed_python([mod], '/Users/biellls/Development/Swift/chip8/Sources/chip8/')

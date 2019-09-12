@@ -27,7 +27,7 @@ def get_module_functions(module) -> List[Function]:
     return [
         Function(
             name=func.__name__,
-            args=[],
+            args=[NameAndType(name=k, type=v) for k, v in func.__annotations__.items() if k != 'return'],
             cls='modulefunction',
             return_type=func.__annotations__.get('return'),
         )
@@ -53,7 +53,7 @@ def get_functions(cls) -> List[Function]:
     return [
         Function(
             name=func.__name__,
-            args=[],
+            args=[NameAndType(name=k, type=v) for k, v in func.__annotations__.items() if k != 'return'],
             cls='staticmethod' if is_static_method(cls, func.__name__) else 'instancemethod',
             return_type=func.__annotations__.get('return'),
         )

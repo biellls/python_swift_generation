@@ -16,11 +16,24 @@ class NameAndType(NamedTuple):
 class Function(NamedTuple):
     name: str
     args: List[NameAndType]
+    cls: str
     return_type: Optional[type] = None
 
     @property
     def mapped_return_type(self):
         return _convert_to_swift_type(self.return_type)
+
+    @property
+    def static_method(self):
+        return self.cls == 'staticmethod'
+
+    @property
+    def instance_method(self):
+        return self.cls == 'instancemethod'
+
+    @property
+    def module_function(self):
+        return self.cls == 'modulefunction'
 
 
 class SwiftObject(NamedTuple):
@@ -29,8 +42,7 @@ class SwiftObject(NamedTuple):
     static_vars: List[NameAndType]
     instance_vars: List[NameAndType]
     init_params: List[NameAndType]
-    instance_methods: List[Function]
-    static_methods: List[Function]
+    methods: List[Function]
 
     @property
     def swift_object_name(self):
@@ -74,7 +86,9 @@ if __name__ == '__main__':
         static_vars=[NameAndType(name='dimensions', type=int)],
         instance_vars=[NameAndType(name='x', type=None), NameAndType(name='y', type=None)],
         init_params=[NameAndType(name='x', type=float), NameAndType(name='y', type=float)],
-        instance_methods=[Function(name='magnitude', args=[], return_type=float)],
-        static_methods=[Function(name='a', args=[], return_type=Optional[int])],
+        methods=[
+            Function(name='magnitude', args=[], return_type=float, cls='instancemethod'),
+            Function(name='a', args=[], return_type=Optional[int], cls='staticmethod'),
+        ],
     ).render()
     Path('/Users/biellls/Development/Swift/chip8/Sources/chip8/basic.swift').write_text(obj)

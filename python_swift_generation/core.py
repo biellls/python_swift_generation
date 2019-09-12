@@ -38,7 +38,12 @@ def is_static_method(cls, name: str) -> bool:
 
 def get_functions(cls) -> List[Function]:
     return [
-        Function(name=func.__name__, args=[], return_type=func.__annotations__.get('return'))
+        Function(
+            name=func.__name__,
+            args=[],
+            cls='staticmethod' if is_static_method(cls, func.__name__) else 'instancemethod',
+            return_type=func.__annotations__.get('return'),
+        )
         for func in
         [getattr(cls, func) for func in dir(cls) if callable(getattr(cls, func)) and not func.startswith("__")]
     ]
@@ -47,8 +52,7 @@ def get_functions(cls) -> List[Function]:
 def create_class_orm(cls) -> SwiftObject:
     static_vars = [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items()]
     instance_vars = [NameAndType(name=x, type=None) for x in cls.__slots__] if hasattr(cls, '__slots__') else []
-    instance_methods = [x for x in get_functions(cls) if not is_static_method(cls, x.name)]
-    static_methods = [x for x in get_functions(cls) if is_static_method(cls, x.name)]
+    instance_methods = get_functions(cls)
     init_params = [NameAndType(name=k, type=v) for k, v in inspect.getfullargspec(cls.__init__).annotations.items()]
     return SwiftObject(
         object_name=cls.__name__,

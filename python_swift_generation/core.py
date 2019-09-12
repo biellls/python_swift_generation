@@ -52,7 +52,6 @@ def get_functions(cls) -> List[Function]:
 def create_class_orm(cls) -> SwiftObject:
     static_vars = [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items()]
     instance_vars = [NameAndType(name=x, type=None) for x in cls.__slots__] if hasattr(cls, '__slots__') else []
-    instance_methods = get_functions(cls)
     init_params = [NameAndType(name=k, type=v) for k, v in inspect.getfullargspec(cls.__init__).annotations.items()]
     return SwiftObject(
         object_name=cls.__name__,
@@ -60,6 +59,5 @@ def create_class_orm(cls) -> SwiftObject:
         static_vars=static_vars,
         instance_vars=instance_vars,
         init_params=init_params,
-        instance_methods=instance_methods,
-        static_methods=static_methods,
+        methods=get_functions(cls),
     )

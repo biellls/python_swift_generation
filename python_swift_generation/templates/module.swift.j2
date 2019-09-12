@@ -1,6 +1,6 @@
-{% macro function_args_definition(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.mapped_type }}{{ "," if not loop.last }}{% endfor %}{% endmacro %}
-{% macro function_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}{{ "," if not loop.last }}{% endfor %}{% endmacro %}
-{% macro init_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}.wrappedInstance{{ "," if not loop.last }}{% endfor %}{% endmacro %}
+{% macro function_args_definition(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.mapped_type }}{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
+{% macro function_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
+{% macro init_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
 {% macro wrapped_return(method) %}let val = {{ 'wrappedClass' if method.static_method else 'wrappedInstance' }}[dynamicMember: "{{ method.name }}"]({{ function_named_args_call(method.args) }})
 {% if method.return_type and method.mapped_return_type.endswith('?') %}
         if val == Python.None { return nil } else { return {{ method.mapped_return_type.replace('?', '') }}(val) }

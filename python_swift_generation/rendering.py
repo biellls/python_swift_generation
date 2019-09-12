@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import NamedTuple, List, Optional, Any, Union
+from typing import NamedTuple, List, Optional, Any, Union, _ForwardRef
 
 import jinja2 as jinja2
 
@@ -74,12 +74,18 @@ class SwiftModule(NamedTuple):
         return _render('module.swift.j2', self.as_dict)
 
 
-def _convert_to_swift_type(python_type):
+def _convert_to_swift_type(python_type) -> str:
+    def capitalize(s):
+        return s[:1].upper() + s[1:]
     if python_type == Any or python_type is None:
         return 'PythonObject'
+    elif isinstance(python_type, str):
+        return f'TPython{capitalize(python_type)}'
     elif python_type.__class__ == type(Union) and python_type.__args__[1] == type(None):
         return _convert_to_swift_type(python_type.__args__[0]) + '?'
-    return f'TPython{python_type.__name__.capitalize()}'
+    elif isinstance(python_type, _ForwardRef):
+        return f'TPython{capitalize(python_type.__forward_arg__)}'
+    return f'TPython{capitalize(python_type.__name__)}'
 
 
 def _render(template_name: str, context: dict):

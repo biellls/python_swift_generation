@@ -90,7 +90,7 @@ if __name__ == '__main__':
     from pathlib import Path
     import sys
     sys.path.append(str(Path(__file__).parent.parent / 'samples'))
-    import basic_module
+    import mathy
 
-    mod = create_module_orm(basic_module)
+    mod = create_module_orm(mathy)
     create_typed_python([mod], '/Users/biellls/Development/Swift/chip8/Sources/chip8/')

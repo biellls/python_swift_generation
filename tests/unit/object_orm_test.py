@@ -1,12 +1,12 @@
 from typing import Any, Optional
 
 from python_swift_generation.core import create_class_orm
-from python_swift_generation.rendering import SwiftObject, NameAndType, Function
+from python_swift_generation.rendering import SwiftClass, NameAndType, Function
 from samples.basic import BasicClass, BasicClass2, BasicClass3, BasicClass4
 
 
 def test_simple_create_object_orm():
-    assert create_class_orm(BasicClass) == SwiftObject(
+    assert create_class_orm(BasicClass) == SwiftClass(
         object_name='BasicClass',
         module='samples.basic',
         static_vars=[NameAndType(name='dimensions', type=int)],
@@ -17,7 +17,7 @@ def test_simple_create_object_orm():
 
 
 def test_simple_create_object_orm2():
-    assert create_class_orm(BasicClass2) == SwiftObject(
+    assert create_class_orm(BasicClass2) == SwiftClass(
         object_name='BasicClass2',
         module='samples.basic',
         static_vars=[NameAndType(name='b', type=Any)],
@@ -29,7 +29,7 @@ def test_simple_create_object_orm2():
 
 def test_simple_create_object_orm3():
     swift_obj = create_class_orm(BasicClass3)
-    assert swift_obj == SwiftObject(
+    assert swift_obj == SwiftClass(
         object_name='BasicClass3',
         module='samples.basic',
         static_vars=[],

@@ -2,7 +2,7 @@ import inspect
 from importlib import util
 from typing import List
 
-from python_swift_generation.rendering import SwiftObject, NameAndType, Function
+from python_swift_generation.rendering import SwiftClass, NameAndType, Function, SwiftModule
 
 
 class BrokenImportError(Exception):
@@ -19,17 +19,30 @@ def load_module_from_path(module_name: str, module_path: str):
     return module
 
 
-def get_module_classes(module):
-    pass
+def get_module_classes(module) -> List[SwiftClass]:
+    return [create_class_orm(obj) for name, obj in inspect.getmembers(module) if inspect.isclass(obj)]
 
 
-def get_module_functions(module):
-    pass
+def get_module_functions(module) -> List[Function]:
+    return [
+        Function(
+            name=func.__name__,
+            args=[],
+            cls='modulefunction',
+            return_type=func.__annotations__.get('return'),
+        )
+        for func in
+        [obj[1] for obj in inspect.getmembers(module) if inspect.isfunction(obj[1])]
+    ]
 
 
-def get_user_attributes(cls):
-    excluded = dir(type('dummy', (object,), {}))
-    return [item for item in inspect.getmembers(cls) if item[0] not in excluded]
+def create_module_orm(module) -> SwiftModule:
+    return SwiftModule(
+        module_name=module.__name__,
+        vars=[NameAndType(name=k, type=v) for k, v in getattr(module, '__annotations__', {}).items()],
+        functions=get_module_functions(module),
+        classes=get_module_classes(module)
+    )
 
 
 def is_static_method(cls, name: str) -> bool:
@@ -49,13 +62,13 @@ def get_functions(cls) -> List[Function]:
     ]
 
 
-def create_class_orm(cls) -> SwiftObject:
+def create_class_orm(cls) -> SwiftClass:
     static_vars = [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items() if getattr(cls, k, False)]
     instance_vars = \
         [NameAndType(name=x, type=None) for x in cls.__slots__] if hasattr(cls, '__slots__') else [] + \
         [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items()]
     init_params = [NameAndType(name=k, type=v) for k, v in inspect.getfullargspec(cls.__init__).annotations.items()]
-    return SwiftObject(
+    return SwiftClass(
         object_name=cls.__name__,
         module=cls.__module__,
         static_vars=static_vars,

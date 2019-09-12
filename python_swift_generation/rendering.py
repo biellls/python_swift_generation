@@ -36,7 +36,7 @@ class Function(NamedTuple):
         return self.cls == 'modulefunction'
 
 
-class SwiftObject(NamedTuple):
+class SwiftClass(NamedTuple):
     object_name: str
     module: str
     static_vars: List[NameAndType]
@@ -54,6 +54,17 @@ class SwiftObject(NamedTuple):
 
     def render(self):
         return _render('object.swift.j2', self.as_dict)
+
+
+class SwiftModule(NamedTuple):
+    module_name: str
+    vars: List[NameAndType]
+    functions: List[Function]
+    classes: List[SwiftClass]
+
+    @property
+    def file_name(self):
+        return f'TPython{self.module_name}'
 
 
 def _convert_to_swift_type(python_type):
@@ -80,7 +91,7 @@ def _render(template_name: str, context: dict):
 
 
 if __name__ == '__main__':
-    obj = SwiftObject(
+    obj = SwiftClass(
         object_name='BasicClass',
         module='basic',
         static_vars=[NameAndType(name='dimensions', type=int)],

@@ -6,6 +6,8 @@
         if val == Python.None { return nil } else { return {{ method.mapped_return_type.replace('?', '') }}(val) }
 {%- elif method.return_type %}
         return {{ method.mapped_return_type }}(val)
+{% else %}
+        return val
 {%- endif %}
 {% endmacro %}
 
@@ -31,10 +33,13 @@ class {{ swift_object_name }} {
 
     // TODO: Add classmethods
     {% for method in methods %}
+    {% if not method.return_type %}
+    @discardableResult
+    {% endif %}
     {% if method.static_method %}
-    static func {{ method.name }}({{ function_args_definition(method.args) }}) {% if method.return_type %}-> {{ method.mapped_return_type }} {% endif %}{
+    static func {{ method.name }}({{ function_args_definition(method.args) }}) -> {% if method.return_type %}{{ method.mapped_return_type }}{% else %}PythonObject{% endif %} {
     {% else %}
-    func {{ method.name }}({{ function_args_definition(method.args) }}) {% if method.return_type %}-> {{ method.mapped_return_type }} {% endif %}{
+    func {{ method.name }}({{ function_args_definition(method.args) }}) -> {% if method.return_type %}{{ method.mapped_return_type }}{% else %}PythonObject{% endif %} {
     {% endif %}
         {{ wrapped_return(method) }}
     }

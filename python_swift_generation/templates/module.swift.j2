@@ -21,7 +21,10 @@ class {{ swift_class_name }} {
     {% endfor %}
 
     {% for method in methods %}
-    static func {{ method.name }}({{ function_args_definition(method.args) }}) {% if method.return_type %}-> {{ method.mapped_return_type }} {% endif %}{
+    {% if not method.return_type %}
+    @discardableResult
+    {% endif %}
+    static func {{ method.name }}({{ function_args_definition(method.args) }}) -> {% if method.return_type %}{{ method.mapped_return_type }}{% else %}PythonObject{% endif %} {
         {{ wrapped_return(method) }}
     }
     {% endfor %}

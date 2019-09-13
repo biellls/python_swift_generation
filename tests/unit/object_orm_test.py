@@ -1,7 +1,7 @@
 from typing import Any, Optional
 
-from python_swift_generation.core import create_class_orm
-from python_swift_generation.rendering import SwiftClass, NameAndType, Function
+from swift_python_wrapper.core import create_class_orm
+from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function
 from samples.basic import BasicClass, BasicClass2, BasicClass3, BasicClass4
 
 

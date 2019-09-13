@@ -1,12 +1,29 @@
 import inspect
 from importlib import util
+from pathlib import Path
 from typing import List
 
-from python_swift_generation.rendering import SwiftClass, NameAndType, Function, SwiftModule, _render
+from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function, SwiftModule, _render
 
 
 class BrokenImportError(Exception):
     pass
+
+
+def build_swift_wrappers_module(module_name, module_path, target_dir):
+    modules = [
+        load_module_from_path(
+            module_name=module_name or Path(module_path).stem,
+            module_path=module_path,
+        )
+    ] if Path(module_path).is_file() else [
+        load_module_from_path(
+            module_name=Path(path).stem,
+            module_path=str(path),
+        )
+        for path in Path(module_path).iterdir() if path.is_file()
+    ]
+    create_typed_python([create_module_orm(module) for module in modules], target_path=target_dir)
 
 
 def load_module_from_path(module_name: str, module_path: str):
@@ -88,13 +105,3 @@ def create_typed_python(modules: List[SwiftModule], target_path: str):
         (Path(target_path) / f'{module.swift_module_name}.swift').write_text(code)
     code = _render('typed_python.swift.j2', {'modules': modules})
     (Path(target_path) / f'typed_python.swift').write_text(code)
-
-
-if __name__ == '__main__':
-    from pathlib import Path
-    import sys
-    sys.path.append(str(Path(__file__).parent.parent / 'samples'))
-    import mathy
-
-    mod = create_module_orm(mathy)
-    create_typed_python([mod], '/Users/biellls/Development/Swift/chip8/Sources/chip8/')

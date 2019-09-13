@@ -1,5 +1,5 @@
-from python_swift_generation.core import create_module_orm
-from python_swift_generation.rendering import SwiftModule, NameAndType, Function, SwiftClass
+from swift_python_wrapper.core import create_module_orm
+from swift_python_wrapper.rendering import SwiftModule, NameAndType, Function, SwiftClass
 from samples import basic_module
 
 

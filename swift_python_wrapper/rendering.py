@@ -107,18 +107,3 @@ def _render(template_name: str, context: dict):
 
     dag_template = template_env.get_template(template_name)
     return dag_template.render(context)
-
-
-if __name__ == '__main__':
-    obj = SwiftClass(
-        object_name='BasicClass',
-        module='basic',
-        static_vars=[NameAndType(name='dimensions', type=int)],
-        instance_vars=[NameAndType(name='x', type=None), NameAndType(name='y', type=None)],
-        init_params=[NameAndType(name='x', type=float), NameAndType(name='y', type=float)],
-        methods=[
-            Function(name='magnitude', args=[], return_type=float, cls='instancemethod'),
-            Function(name='a', args=[], return_type=Optional[int], cls='staticmethod'),
-        ],
-    ).render()
-    Path('/Users/biellls/Development/Swift/chip8/Sources/chip8/basic.swift').write_text(obj)

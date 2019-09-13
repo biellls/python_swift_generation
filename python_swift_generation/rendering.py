@@ -1,3 +1,4 @@
+import inspect
 from pathlib import Path
 from typing import NamedTuple, List, Optional, Any, Union, _ForwardRef
 
@@ -7,6 +8,7 @@ import jinja2 as jinja2
 class NameAndType(NamedTuple):
     name: str
     type: Optional[type]
+    default_value: Any = inspect.Parameter.empty
 
     @property
     def mapped_type(self):

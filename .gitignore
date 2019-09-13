@@ -1,1 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
+/swift_python_wrapper.egg-info/
+/.idea/dictionaries/biellls.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/python_swift_generation.iml

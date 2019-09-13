@@ -56,7 +56,7 @@ def get_functions(cls) -> List[Function]:
             args=[
                 NameAndType(name=k, type=v.annotation, default_value=v.default)
                 for k, v in inspect.signature(func).parameters.items()
-                if k != 'return'
+                if k != 'return' and k != 'self'
             ],
             cls='staticmethod' if is_static_method(cls, func.__name__) else 'instancemethod',
             return_type=func.__annotations__.get('return'),

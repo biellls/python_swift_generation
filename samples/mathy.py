@@ -14,7 +14,7 @@ class Vector2D:
     def magnitude(self) -> float:
         return math.sqrt(self.x * self.x + self.y * self.y)
 
-    def add(self, scalar: float) -> 'Vector2D':
+    def add(self, scalar: float = 1) -> 'Vector2D':
         return Vector2D(self.x + scalar, self.y + scalar)
 
     def add_if_even(self, scalar: float) -> Optional['Vector2D']:

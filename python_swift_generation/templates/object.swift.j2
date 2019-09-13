@@ -1,4 +1,4 @@
-{% macro function_args_definition(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.mapped_type }}{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
+{% macro function_args_definition(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.mapped_type }}{% if arg.has_default_value %} = {{ arg.default_value }}{% endif %}{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
 {% macro function_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}.wrappedInstance{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
 {% macro init_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}.wrappedInstance{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
 {% macro wrapped_return(method) %}let val = {{ 'wrappedClass' if method.static_method else 'wrappedInstance' }}[dynamicMember: "{{ method.name }}"]({{ function_named_args_call(method.args) }})

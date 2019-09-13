@@ -14,6 +14,10 @@ class NameAndType(NamedTuple):
     def mapped_type(self):
         return _convert_to_swift_type(self.type)
 
+    @property
+    def has_default_value(self):
+        return self.default_value != inspect.Parameter.empty
+
 
 class Function(NamedTuple):
     name: str

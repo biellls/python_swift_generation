@@ -27,3 +27,8 @@ class BasicClass3:
     @staticmethod
     def a() -> Optional[int]:
         return 2
+
+
+class BasicClass4:
+    def f(self, x: int, y: int = 3):
+        pass

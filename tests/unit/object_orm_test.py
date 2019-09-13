@@ -38,3 +38,15 @@ def test_simple_create_object_orm3():
         methods=[Function(name='a', args=[], return_type=Optional[int], cls='staticmethod')],
     )
     assert swift_obj.methods[0].mapped_return_type == 'TPythonInt?'
+
+
+def test_simple_create_object_orm4():
+    swift_obj = create_class_orm(BasicClass4)
+    assert swift_obj == SwiftClass(
+        object_name='BasicClass4',
+        module='samples.basic',
+        static_vars=[],
+        instance_vars=[],
+        init_params=[],
+        methods=[Function(name='f', args=[NameAndType('x', int), NameAndType('y', int, 3)], return_type=None, cls='instancemethod')],
+    )

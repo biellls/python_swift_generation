@@ -1,0 +1,38 @@
+{% for bmm in binary_magic_methods %}
+extension {{ swift_object_name }}: {{ bmm.swift_protocol_name ) }} {
+    {% for rhs_type, return_type in bmm.right_classes %}
+    public static func {{ bmm.symbol }}(lhs: {{ swift_object_name }}), rhs: {{ rhs_type }}) -> {{ return_type | convert_to_swift_type }} {
+        return  {{ return_type | convert_to_swift_type }}(self.wrappedClass[dynamicMember: "{{ python_magic_method }}"](lhs, rhs))
+    }
+    {% endfor %}
+}
+
+{% endfor %}
+{% for bmm in unary_magic_methods %}
+extension {{ swift_object_name }}: {{ bmm.swift_protocol_name ) }} {
+    public static func {{ bmm.symbol }}(x: {{ swift_object_name }}) -> {{ swift_object_name }} {
+        return  {{ swift_object_name }}(self.wrappedClass[dynamicMember: "{{ python_magic_method }}"](x))
+    }
+}
+
+{% endfor %}
+{% if magic_methods.length %}
+extension {{ swift_object_name }} {
+    var size: Int { return Int(self.wrappedClass[dynamicMember: "len"](self.wrappedInstance))
+}
+
+{% endif %}
+{% if magic_methods.get_item %}
+extension {{ swift_object_name }} {
+    subscript(index: {{ magic_methods.get_item.index_type }}) -> {{ magic_methods.get_item.return_type }} {
+        get {
+            return {{ magic_methods.get_item.return_type }}(self.wrappedClass.__get_item__(index.wrappedInstance))
+        }
+        {% if magic_methods.set_item %}
+        set(newValue) {
+            return self.wrappedClass.__set_item__(index.wrappedInstance, newValue.wrappedInstance)
+        }
+        {% endif %}
+    }
+}
+{% endif %}

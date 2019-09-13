@@ -3,7 +3,8 @@ from importlib import util
 from pathlib import Path
 from typing import List
 
-from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function, SwiftModule, _render
+from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function, SwiftModule, _render, MagicMethods, \
+    BinaryMagicMethod, UnaryMagicMethod
 
 
 class BrokenImportError(Exception):
@@ -83,6 +84,41 @@ def get_functions(cls) -> List[Function]:
     ]
 
 
+binary_magic_mappings = {
+    '__add__': ('+', None, float),
+    '__sub__': ('-', None, float),
+}
+
+unary_magic_mappings = {
+    '__pos__': ('+', None, float),
+    '__neg__': ('-', None, float),
+}
+
+
+def get_magic_methods(cls) -> MagicMethods:
+    magic_methods = {}
+    for func in [getattr(cls, func) for func in dir(cls) if callable(getattr(cls, func)) and func.startswith("__")]:
+        if func.__name__ in binary_magic_mappings.keys():
+            signature = inspect.signature(func)
+            symbol, protocol, default_type = binary_magic_mappings[func.__name__]
+            rhs = list(signature.parameters.items())[1][1].annotation
+            return_value = signature.return_annotation if signature.return_annotation != inspect.Parameter.empty else None
+            magic_methods[func.__name__.lstrip('_')] = BinaryMagicMethod(
+                symbol=symbol,
+                python_magic_method=func.__name__,
+                swift_protocol_name=protocol,
+                right_classes=[(rhs, return_value or default_type)]
+            )
+        elif func.__name__ in unary_magic_mappings.keys():
+            symbol, protocol, default_type = unary_magic_mappings[func.__name__]
+            magic_methods[func.__name__.lstrip('_')] = UnaryMagicMethod(
+                symbol=symbol,
+                python_magic_method=func.__name__,
+                swift_protocol_name=protocol,
+            )
+    return MagicMethods(**magic_methods)
+
+
 def create_class_orm(cls) -> SwiftClass:
     static_vars = [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items() if getattr(cls, k, False)]
     instance_vars = \
@@ -96,6 +132,7 @@ def create_class_orm(cls) -> SwiftClass:
         instance_vars=instance_vars,
         init_params=init_params,
         methods=get_functions(cls),
+        magic_methods=get_magic_methods(cls),
     )
 
 

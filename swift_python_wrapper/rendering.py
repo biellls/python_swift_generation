@@ -1,6 +1,6 @@
 import inspect
 from pathlib import Path
-from typing import NamedTuple, List, Optional, Any, Union, _ForwardRef
+from typing import NamedTuple, List, Optional, Any, Union, _ForwardRef, Tuple
 
 import jinja2 as jinja2
 
@@ -49,6 +49,7 @@ class SwiftClass(NamedTuple):
     instance_vars: List[NameAndType]
     init_params: List[NameAndType]
     methods: List[Function]
+    magic_methods: 'MagicMethods'
 
     @property
     def swift_object_name(self):
@@ -92,6 +93,69 @@ def _convert_to_swift_type(python_type) -> str:
     elif isinstance(python_type, _ForwardRef):
         return f'TPython{capitalize(python_type.__forward_arg__)}'
     return f'TPython{capitalize(python_type.__name__)}'
+
+
+class BinaryMagicMethod(NamedTuple):
+    symbol: str
+    python_magic_method: str
+    swift_protocol_name: Optional[str]
+    right_classes: List[Tuple[type, type]]  # List of right hand side types and return types for each
+
+
+class UnaryMagicMethod(NamedTuple):
+    symbol: str
+    python_magic_method: str
+    swift_protocol_name: Optional[str]
+
+
+class MagicMethods(NamedTuple):
+    # Equality
+    ne__: Union[bool, BinaryMagicMethod] = False
+    gt__: Union[bool, BinaryMagicMethod] = False
+    lt__: Union[bool, BinaryMagicMethod] = False
+    ge__: Union[bool, BinaryMagicMethod] = False
+    le__: Union[bool, BinaryMagicMethod] = False
+    # Numeric
+    pos__: Union[bool, UnaryMagicMethod] = False
+    neg__: Union[bool, UnaryMagicMethod] = False
+    add__: Union[bool, BinaryMagicMethod] = False
+    sub__: Union[bool, BinaryMagicMethod] = False
+    mul__: Union[bool, BinaryMagicMethod] = False
+    div__: Union[bool, BinaryMagicMethod] = False
+    mod__: Union[bool, BinaryMagicMethod] = False
+    lshift__: Union[bool, BinaryMagicMethod] = False
+    rshift__: Union[bool, BinaryMagicMethod] = False
+    iadd__: Union[bool, BinaryMagicMethod] = False
+    isub__: Union[bool, BinaryMagicMethod] = False
+    imul__: Union[bool, BinaryMagicMethod] = False
+    idiv__: Union[bool, BinaryMagicMethod] = False
+    # Boolean
+    and__: Union[bool, BinaryMagicMethod] = False
+    or__: Union[bool, BinaryMagicMethod] = False
+    xor__: Union[bool, BinaryMagicMethod] = False
+    # Sequences
+    len__: bool = False
+    get_item__: bool = False
+    set_item__: bool = False
+    iter__: bool = False
+    # Others
+    context_manager: bool = False
+
+    @property
+    def unary_magic_methods(self) -> List[UnaryMagicMethod]:
+        result = []
+        for v in self._asdict().values():
+            if isinstance(v, UnaryMagicMethod):
+                result.append(v)
+        return result
+
+    @property
+    def binary_magic_methods(self) -> List[BinaryMagicMethod]:
+        result = []
+        for v in self._asdict().values():
+            if isinstance(v, BinaryMagicMethod):
+                result.append(v)
+        return result
 
 
 def _render(template_name: str, context: dict):

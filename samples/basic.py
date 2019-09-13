@@ -32,3 +32,11 @@ class BasicClass3:
 class BasicClass4:
     def f(self, x: int, y: int = 3):
         pass
+
+
+class BasicClass5:
+    def __add__(self, other: int) -> int:
+        pass
+
+    def __pos__(self) -> 'BasicClass5':
+        pass

@@ -1,4 +1,4 @@
-from typing import Union, overload
+from typing import Union, overload, List
 
 
 class ComplexClass1:
@@ -18,3 +18,8 @@ class ComplexClass2:
     # noinspection PyMethodMayBeStatic
     def f(self, x):
         return x + 2
+
+
+class ComplexClass3:
+    def foo(self, x: List[str]) -> List[str]:
+        pass

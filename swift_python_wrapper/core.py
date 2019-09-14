@@ -78,22 +78,21 @@ def is_static_method(cls, name: str) -> bool:
 def get_functions(cls) -> List[Function]:
     functions = [
         Function(
-            name=func.__name__,
+            name=func_name,
             args=[
                 NameAndType(name=k, type=v.annotation, default_value=v.default)
                 for k, v in inspect.signature(func).parameters.items()
                 if k != 'return' and k != 'self'
             ],
-            cls='staticmethod' if is_static_method(cls, func.__name__) else 'instancemethod',
+            cls='staticmethod' if is_static_method(cls, func_name) else 'instancemethod',
             return_type=func.__annotations__.get('return'),
         )
-        for func in
+        for func_name, func in
         [
-            inspect.getattr_static(cls, func)
-            for func in dir(cls)
-            if callable(inspect.getattr_static(cls, func)) and not func.startswith("__") and not inspect.getattr_static(cls, func).__name__ in ['overload', '_overload_dummy']
+            (func_name, func)
+            for func_name, func in inspect.getmembers(cls, inspect.isfunction)
+            if not func_name.startswith("__") and func_name not in ['overload', '_overload_dummy']
         ]
-        # [obj[1] for obj in inspect.getmembers(cls) if inspect.isfunction(obj[1]) and not obj[1].__name__.startswith('_overload')]
     ]
     overloads = get_overloads(cls, is_module=False)
     functions = [x for x in functions if x.name not in {f.name for f in overloads}] + overloads
@@ -200,6 +199,6 @@ def create_typed_python(modules: List[SwiftModule], target_path: str):
 if __name__ == '__main__':
     build_swift_wrappers_module(
         module_name=None,
-        module_path='/Users/biellls/Development/Swift/chip8/Sources/python',
-        target_dir='/Users/biellls/Development/Swift/chip8/Sources/chip8'
+        module_path='/Users/biellls/Development/Python/python_swift_generation/stubs',
+        target_dir='/Users/biellls/Development/Python/python_swift_generation/aout'
     )

@@ -1,6 +1,6 @@
-from typing import Any, Optional
+from typing import Any, Optional, List
 
-from samples.complex import ComplexClass1, ComplexClass2
+from samples.complex import ComplexClass1, ComplexClass2, ComplexClass3
 from swift_python_wrapper.core import create_class_orm
 from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function, MagicMethods, BinaryMagicMethod, \
     UnaryMagicMethod
@@ -76,7 +76,7 @@ def test_simple_create_object_orm5():
     assert swift_obj.magic_methods.unary_magic_methods == [UnaryMagicMethod(symbol='+', python_magic_method='__pos__', swift_protocol_name=None)]
 
 
-def test_complex_create_object_orm4():
+def test_complex_create_object_orm1():
     swift_obj = create_class_orm(ComplexClass1)
     assert swift_obj == SwiftClass(
         object_name='ComplexClass1',
@@ -90,3 +90,19 @@ def test_complex_create_object_orm4():
         ],
         magic_methods=MagicMethods(),
     )
+
+
+def test_complex_create_object_orm3():
+    swift_obj = create_class_orm(ComplexClass3)
+    assert swift_obj == SwiftClass(
+        object_name='ComplexClass3',
+        module='samples.complex',
+        static_vars=[],
+        instance_vars=[],
+        init_params=[],
+        methods=[
+            Function(name='foo', args=[NameAndType('x', List[str])], return_type=List[str], cls='instancemethod'),
+        ],
+        magic_methods=MagicMethods(),
+    )
+    assert swift_obj.methods[0].mapped_return_type == 'TPythonList<TPythonStr>'

@@ -1,6 +1,6 @@
 import inspect
 from pathlib import Path
-from typing import NamedTuple, List, Optional, Any, Union, _ForwardRef, Tuple
+from typing import NamedTuple, List, Optional, Any, Union, _ForwardRef, Tuple, Sequence
 
 import jinja2 as jinja2
 
@@ -93,6 +93,10 @@ def _convert_to_swift_type(python_type) -> str:
         return f'TPython{capitalize(python_type)}'
     elif python_type.__class__ == type(Union) and python_type.__args__[1] == type(None):
         return _convert_to_swift_type(python_type.__args__[0]) + '?'
+    elif python_type.__class__ == type(List):
+        return f'TPythonList<{_convert_to_swift_type(python_type.__args__[0])}>'
+    elif python_type.__class__ == type(Sequence):
+        return f'TPythonSequence<{_convert_to_swift_type(python_type.__args__[0])}>'
     elif isinstance(python_type, _ForwardRef):
         return f'TPython{capitalize(python_type.__forward_arg__)}'
     return f'TPython{capitalize(python_type.__name__)}'

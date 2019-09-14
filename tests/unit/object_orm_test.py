@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from samples.complex import ComplexClass1
+from samples.complex import ComplexClass1, ComplexClass2
 from swift_python_wrapper.core import create_class_orm
 from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function, MagicMethods, BinaryMagicMethod, \
     UnaryMagicMethod

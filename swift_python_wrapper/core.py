@@ -172,6 +172,11 @@ def create_class_orm(cls) -> SwiftClass:
     )
 
 
+def get_overloads(cls):
+    cls.spl
+
+
+
 def create_typed_python(modules: List[SwiftModule], target_path: str):
     for module in modules:
         code = module.render()

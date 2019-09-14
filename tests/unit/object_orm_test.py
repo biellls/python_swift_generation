@@ -50,7 +50,7 @@ def test_simple_create_object_orm4():
         object_name='BasicClass4',
         module='samples.basic',
         static_vars=[],
-        instance_vars=[],
+        instance_vars=[NameAndType('p', int)],
         init_params=[],
         methods=[Function(name='f', args=[NameAndType('x', int), NameAndType('y', int, 3)], return_type=None, cls='instancemethod')],
         magic_methods=MagicMethods(),

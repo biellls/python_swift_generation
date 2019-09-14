@@ -30,6 +30,10 @@ class BasicClass3:
 
 
 class BasicClass4:
+    @property
+    def p(self) -> int:
+        return 3
+
     def f(self, x: int, y: int = 3):
         pass
 

@@ -81,7 +81,7 @@ def get_functions(cls) -> List[Function]:
             return_type=func.__annotations__.get('return'),
         )
         for func in
-        [getattr(cls, func) for func in dir(cls) if callable(getattr(cls, func)) and not func.startswith("__")]
+        [inspect.getattr_static(cls, func) for func in dir(cls) if callable(inspect.getattr_static(cls, func)) and not func.startswith("__")]
     ]
 
 
@@ -98,7 +98,7 @@ unary_magic_mappings = {
 
 def get_magic_methods(cls) -> MagicMethods:
     magic_methods = {}
-    for func in [getattr(cls, func) for func in dir(cls) if callable(getattr(cls, func)) and func.startswith("__")]:
+    for func in [inspect.getattr_static(cls, func) for func in dir(cls) if callable(inspect.getattr_static(cls, func)) and func.startswith("__")]:
         if func.__name__ in binary_magic_mappings.keys():
             signature = inspect.signature(func)
             symbol, protocol, default_type = binary_magic_mappings[func.__name__]
@@ -134,7 +134,8 @@ def create_class_orm(cls) -> SwiftClass:
     static_vars = [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items() if getattr(cls, k, False)]
     instance_vars = \
         [NameAndType(name=x, type=None) for x in cls.__slots__] if hasattr(cls, '__slots__') else [] + \
-        [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items()]
+        [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items()] + \
+        [NameAndType(name, type=getattr(prop.fget, '__annotations__', {}).get('return')) for name, prop in inspect.getmembers(cls, lambda o: isinstance(o, property))]
     init_params = [NameAndType(name=k, type=v) for k, v in inspect.getfullargspec(cls.__init__).annotations.items()]
     return SwiftClass(
         object_name=cls.__name__,

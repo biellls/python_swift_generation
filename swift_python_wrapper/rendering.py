@@ -59,8 +59,11 @@ class SwiftClass(NamedTuple):
     def as_dict(self):
         return dict(swift_object_name=self.swift_object_name, **self._asdict())
 
+    def render_magic_methods(self):
+        return _render('magic_methods.swift.j2', self.as_dict)
+
     def render(self):
-        return _render('object.swift.j2', self.as_dict)
+        return _render('object.swift.j2', dict(rendered_magic_methods=self.render_magic_methods(), **self.as_dict))
 
 
 class SwiftModule(NamedTuple):
@@ -135,8 +138,8 @@ class MagicMethods(NamedTuple):
     xor__: Union[bool, BinaryMagicMethod] = False
     # Sequences
     len__: bool = False
-    get_item__: bool = False
-    set_item__: bool = False
+    getitem__: bool = False
+    setitem__: bool = False
     iter__: bool = False
     # Others
     context_manager: bool = False
@@ -169,5 +172,5 @@ def _render(template_name: str, context: dict):
 
     template_env.filters.update(convert_to_swift_type=_convert_to_swift_type)
 
-    dag_template = template_env.get_template(template_name)
-    return dag_template.render(context)
+    template = template_env.get_template(template_name)
+    return template.render(context)

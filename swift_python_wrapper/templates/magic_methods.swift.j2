@@ -1,34 +1,34 @@
 {% for bmm in magic_methods.binary_magic_methods %}
-extension {{ swift_object_name }}{% endif %}: {{ bmm.swift_protocol_name ) }}{% endif %} {
+extension {{ swift_object_name }}{% if bmm.swift_protocol_name %}: {{ bmm.swift_protocol_name }}{% endif %} {
     {% for rhs_type, return_type in bmm.right_classes %}
-    public static func {{ bmm.symbol }}(lhs: {{ swift_object_name }}), rhs: {{ rhs_type }}) -> {{ return_type | convert_to_swift_type }} {
-        return  {{ return_type | convert_to_swift_type }}(self.wrappedClass[dynamicMember: "{{ python_magic_method }}"](lhs, rhs))
+    public static func {{ bmm.symbol }}(lhs: {{ swift_object_name }}, rhs: {{ rhs_type | convert_to_swift_type }}) -> {{ return_type | convert_to_swift_type }} {
+        return  {{ return_type | convert_to_swift_type }}(self.wrappedClass[dynamicMember: "{{ bmm.python_magic_method }}"](lhs.wrappedInstance, rhs.wrappedInstance))
     }
     {% endfor %}
 }
 
 {% endfor %}
-{% for bmm in magic_methods.unary_magic_methods %}
-extension {{ swift_object_name }}{% if %}: {{ bmm.swift_protocol_name ) }}{% endif %} {
-    public static func {{ bmm.symbol }}(x: {{ swift_object_name }}) -> {{ swift_object_name }} {
-        return  {{ swift_object_name }}(self.wrappedClass[dynamicMember: "{{ python_magic_method }}"](x))
+{% for umm in magic_methods.unary_magic_methods %}
+extension {{ swift_object_name }}{% if umm.swift_protocol_name %}: {{ umm.swift_protocol_name }}{% endif %} {
+    public static prefix func {{ umm.symbol }}(x: {{ swift_object_name }}) -> {{ swift_object_name }} {
+        return  {{ swift_object_name }}(self.wrappedClass[dynamicMember: "{{ umm.python_magic_method }}"](x.wrappedInstance))
     }
 }
 
 {% endfor %}
-{% if magic_methods.length %}
+{% if magic_methods.len__ %}
 extension {{ swift_object_name }} {
-    var size: Int { return Int(self.wrappedClass[dynamicMember: "len"](self.wrappedInstance))
+    var size: Int { return Int({{ swift_object_name }}.wrappedClass[dynamicMember: "len"](self.wrappedInstance))! }
 }
 
 {% endif %}
-{% if magic_methods.get_item %}
+{% if magic_methods.getitem__ %}
 extension {{ swift_object_name }} {
-    subscript(index: {{ magic_methods.get_item.index_type }}) -> {{ magic_methods.get_item.return_type }} {
+    subscript(index: {{ magic_methods.getitem__.index_type | convert_to_swift_type }}) -> {{ magic_methods.getitem__.return_type | convert_to_swift_type }} {
         get {
-            return {{ magic_methods.get_item.return_type }}(self.wrappedClass.__get_item__(index.wrappedInstance))
+            return {{ magic_methods.getitem__.return_type | convert_to_swift_type }}(self.wrappedClass.__get_item__(index.wrappedInstance))
         }
-        {% if magic_methods.set_item %}
+        {% if magic_methods.setitem__ %}
         set(newValue) {
             return self.wrappedClass.__set_item__(index.wrappedInstance, newValue.wrappedInstance)
         }

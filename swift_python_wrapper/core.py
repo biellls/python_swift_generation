@@ -1,6 +1,7 @@
 import inspect
 from importlib import util
 from pathlib import Path
+from types import SimpleNamespace
 from typing import List
 
 from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function, SwiftModule, _render, MagicMethods, \
@@ -116,6 +117,16 @@ def get_magic_methods(cls) -> MagicMethods:
                 python_magic_method=func.__name__,
                 swift_protocol_name=protocol,
             )
+        elif func.__name__ == '__len__':
+            magic_methods[func.__name__.lstrip('_')] = True
+        elif func.__name__ == '__getitem__':
+            signature = inspect.signature(func)
+            magic_methods[func.__name__.lstrip('_')] = SimpleNamespace(
+                index_type=list(signature.parameters.items())[1][1].annotation,
+                return_type=signature.return_annotation if signature.return_annotation != inspect.Parameter.empty else None,
+            )
+        elif func.__name__ == '__setitem__':
+            magic_methods[func.__name__.lstrip('_')] = True
     return MagicMethods(**magic_methods)
 
 

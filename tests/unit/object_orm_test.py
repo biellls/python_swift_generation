@@ -71,3 +71,5 @@ def test_simple_create_object_orm5():
             add__=BinaryMagicMethod(symbol='+', python_magic_method='__add__', swift_protocol_name=None, right_classes=[(int, int)])
         ),
     )
+    assert swift_obj.magic_methods.binary_magic_methods == [BinaryMagicMethod(symbol='+', python_magic_method='__add__', swift_protocol_name=None, right_classes=[(int, int)])]
+    assert swift_obj.magic_methods.unary_magic_methods == [UnaryMagicMethod(symbol='+', python_magic_method='__pos__', swift_protocol_name=None)]

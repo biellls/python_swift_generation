@@ -1,5 +1,5 @@
-{% for bmm in binary_magic_methods %}
-extension {{ swift_object_name }}: {{ bmm.swift_protocol_name ) }} {
+{% for bmm in magic_methods.binary_magic_methods %}
+extension {{ swift_object_name }}{% endif %}: {{ bmm.swift_protocol_name ) }}{% endif %} {
     {% for rhs_type, return_type in bmm.right_classes %}
     public static func {{ bmm.symbol }}(lhs: {{ swift_object_name }}), rhs: {{ rhs_type }}) -> {{ return_type | convert_to_swift_type }} {
         return  {{ return_type | convert_to_swift_type }}(self.wrappedClass[dynamicMember: "{{ python_magic_method }}"](lhs, rhs))
@@ -8,8 +8,8 @@ extension {{ swift_object_name }}: {{ bmm.swift_protocol_name ) }} {
 }
 
 {% endfor %}
-{% for bmm in unary_magic_methods %}
-extension {{ swift_object_name }}: {{ bmm.swift_protocol_name ) }} {
+{% for bmm in magic_methods.unary_magic_methods %}
+extension {{ swift_object_name }}{% if %}: {{ bmm.swift_protocol_name ) }}{% endif %} {
     public static func {{ bmm.symbol }}(x: {{ swift_object_name }}) -> {{ swift_object_name }} {
         return  {{ swift_object_name }}(self.wrappedClass[dynamicMember: "{{ python_magic_method }}"](x))
     }

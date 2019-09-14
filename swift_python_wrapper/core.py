@@ -44,7 +44,7 @@ def get_module_classes(module) -> List[SwiftClass]:
 
 
 def get_module_functions(module) -> List[Function]:
-    return [
+    functions = [
         Function(
             name=func.__name__,
             args=[NameAndType(name=k, type=v) for k, v in func.__annotations__.items() if k != 'return'],
@@ -54,6 +54,7 @@ def get_module_functions(module) -> List[Function]:
         for func in
         [obj[1] for obj in inspect.getmembers(module) if inspect.isfunction(obj[1])]
     ]
+    return flatten_functions(functions)
 
 
 def create_module_orm(module) -> SwiftModule:
@@ -84,6 +85,10 @@ def get_functions(cls) -> List[Function]:
         for func in
         [inspect.getattr_static(cls, func) for func in dir(cls) if callable(inspect.getattr_static(cls, func)) and not func.startswith("__")]
     ]
+    return flatten_functions(functions)
+
+
+def flatten_functions(functions) -> List[Function]:
     result = []
     for f in functions:
         flattened_args = [[]]

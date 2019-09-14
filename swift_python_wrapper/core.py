@@ -1,8 +1,9 @@
 import inspect
+from copy import deepcopy
 from importlib import util
 from pathlib import Path
 from types import SimpleNamespace
-from typing import List
+from typing import List, Union
 
 from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function, SwiftModule, _render, MagicMethods, \
     BinaryMagicMethod, UnaryMagicMethod
@@ -69,7 +70,7 @@ def is_static_method(cls, name: str) -> bool:
 
 
 def get_functions(cls) -> List[Function]:
-    return [
+    functions = [
         Function(
             name=func.__name__,
             args=[
@@ -83,6 +84,24 @@ def get_functions(cls) -> List[Function]:
         for func in
         [inspect.getattr_static(cls, func) for func in dir(cls) if callable(inspect.getattr_static(cls, func)) and not func.startswith("__")]
     ]
+    result = []
+    for f in functions:
+        flattened_args = [[]]
+        for arg in f.args:
+            if arg.type.__class__ == type(Union):
+                new_flattened_args = []
+                for t in arg.type.__args__:
+                    flattened_args_copy = deepcopy(flattened_args)
+                    for l in flattened_args_copy:
+                        l.append(NameAndType(arg.name, t))
+                    new_flattened_args = new_flattened_args + flattened_args_copy
+                flattened_args = new_flattened_args
+            else:
+                for l in flattened_args:
+                    l.append(arg)
+        for l in flattened_args:
+            result.append(Function(name=f.name, args=l, cls=f.cls, return_type=f.return_type))
+        return result
 
 
 binary_magic_mappings = {

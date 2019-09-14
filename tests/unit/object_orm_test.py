@@ -1,5 +1,6 @@
 from typing import Any, Optional
 
+from samples.complex import ComplexClass1
 from swift_python_wrapper.core import create_class_orm
 from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function, MagicMethods, BinaryMagicMethod, \
     UnaryMagicMethod
@@ -73,3 +74,19 @@ def test_simple_create_object_orm5():
     )
     assert swift_obj.magic_methods.binary_magic_methods == [BinaryMagicMethod(symbol='+', python_magic_method='__add__', swift_protocol_name=None, right_classes=[(int, int)])]
     assert swift_obj.magic_methods.unary_magic_methods == [UnaryMagicMethod(symbol='+', python_magic_method='__pos__', swift_protocol_name=None)]
+
+
+def test_complex_create_object_orm4():
+    swift_obj = create_class_orm(ComplexClass1)
+    assert swift_obj == SwiftClass(
+        object_name='ComplexClass1',
+        module='samples.complex',
+        static_vars=[],
+        instance_vars=[],
+        init_params=[],
+        methods=[
+            Function(name='f', args=[NameAndType('x', int), NameAndType('y', int), NameAndType('z', float)], return_type=float, cls='instancemethod'),
+            Function(name='f', args=[NameAndType('x', int), NameAndType('y', float), NameAndType('z', float)], return_type=float, cls='instancemethod'),
+        ],
+        magic_methods=MagicMethods(),
+    )

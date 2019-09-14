@@ -29,12 +29,15 @@ class BasicClass3:
         return 2
 
 
+IntAlias = int
+
+
 class BasicClass4:
     @property
     def p(self) -> int:
         return 3
 
-    def f(self, x: int, y: int = 3):
+    def f(self, x: IntAlias, y: IntAlias = 3):
         pass
 
 

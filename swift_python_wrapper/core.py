@@ -43,7 +43,15 @@ def load_module_from_path(module_name: str, module_path: str):
 
 
 def get_module_classes(module) -> List[SwiftClass]:
-    return [create_class_orm(obj) for name, obj in inspect.getmembers(module) if inspect.isclass(obj)]
+    return [create_class_orm(obj) for name, obj in inspect.getmembers(module) if inspect.isclass(obj) and obj.__module__ == module.__name__ and can_get_source(obj)]
+
+
+def can_get_source(obj) -> bool:
+    try:
+        inspect.getsource(obj)
+        return True
+    except OSError:
+        return False
 
 
 def get_module_functions(module) -> List[Function]:

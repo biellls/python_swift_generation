@@ -80,7 +80,7 @@ def create_module_orm(module) -> SwiftModule:
 
 
 def is_static_method(cls, name: str) -> bool:
-    return cls.__dict__[name].__class__ == staticmethod
+    return cls.__dict__[name].__class__ == staticmethod or cls.__dict__[name].__class__ == classmethod
 
 
 def get_functions(cls) -> List[Function]:
@@ -98,7 +98,7 @@ def get_functions(cls) -> List[Function]:
         for func_name, func in
         [
             (func_name, func)
-            for func_name, func in inspect.getmembers(cls, inspect.isfunction)
+            for func_name, func in inspect.getmembers(cls, lambda x: inspect.isfunction(x) or inspect.ismethod(x))
             if not func_name.startswith("__") and func_name not in ['overload', '_overload_dummy']
         ]
     ]

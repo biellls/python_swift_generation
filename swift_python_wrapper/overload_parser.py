@@ -1,10 +1,14 @@
 from typing import Tuple, List
 
-from swift_python_wrapper.rendering import NameAndType
+from swift_python_wrapper.rendering import NameAndType, Function
 
 
-def parse_overload(source: str):
-    overloads = [a_def(x.lstrip()) for x in source.split('@overload')[1:]]
+def parse_overloads(source: str, indentation: int, module_or_class_name: str):
+    overloads = [
+        a_def(module_or_class_name, x.lstrip())
+        for x in source.split('@overload\n')[1:]
+        if x.startswith(('    ' * indentation) + 'def')
+    ]
     return overloads
 
 
@@ -97,10 +101,12 @@ def a_typed_params(source: str, i: int) -> Tuple[List[NameAndType], int]:
     return result, i
 
 
-def a_def(source: str):
+def a_def(class_name, source: str) -> Function:
     i = a_whitespace(source, 0, optional=True)
     i = a_str(source, i, 'def')
     i = a_whitespace(source, i)
+    name, i = a_id(source, i)
+    i = a_whitespace(source, i, optional=True)
     i = a_str(source, i, '(')
     i = a_whitespace(source, i, optional=True)
     name_types, i = a_typed_params(source, i)
@@ -113,7 +119,11 @@ def a_def(source: str):
             raise ParseError(f'Error while parsing -> found {tk}')
         i += 1
         i = a_whitespace(source, i, optional=True)
-        t, i = get_type(source, i)
+        return_type, i = a_get_type(source, i)
         i = a_whitespace(source, i, optional=True)
+    else:
+        return_type = None
     i = a_str(source, i, ':')
     i = a_whitespace(source, i, optional=True)
+    i = a_str(source, i, '...')
+    return Function(name=name, args=name_types, cls=class_name, return_type=return_type)

@@ -1,11 +1,13 @@
 {% macro function_args_definition(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.mapped_type }}{% if arg.has_default_value %} = {{ arg.default_value }}{% endif %}{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
 {% macro function_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
 {% macro init_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
-{% macro wrapped_return(method) %}let val = {{ 'wrappedClass' if method.static_method else 'wrappedInstance' }}[dynamicMember: "{{ method.name }}"]({{ function_named_args_call(method.args) }})
+{% macro wrapped_return(method) %}let val = wrappedModule[dynamicMember: "{{ method.name }}"]({{ function_named_args_call(method.args) }})
 {% if method.return_type and method.mapped_return_type.endswith('?') %}
         if val == Python.None { return nil } else { return {{ method.mapped_return_type.replace('?', '') }}(val) }
 {%- elif method.return_type %}
         return {{ method.mapped_return_type }}(val)
+{% else %}
+        return val
 {%- endif %}
 {% endmacro %}
 import PythonKit
@@ -20,7 +22,7 @@ class {{ swift_class_name }} {
     static var {{ var.name }}: {{ var.mapped_type }} { return {{ var.mapped_type }}(wrappedModule[dynamicMember: "{{ var.name }}"]) }
     {% endfor %}
 
-    {% for method in methods %}
+    {% for method in functions %}
     {% if not method.return_type %}
     @discardableResult
     {% endif %}

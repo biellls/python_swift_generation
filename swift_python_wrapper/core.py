@@ -1,10 +1,12 @@
 import inspect
+import sys
 from copy import deepcopy
 from importlib import util
 from pathlib import Path
 from types import SimpleNamespace
 from typing import List, Union
 
+from swift_python_wrapper.overload_parser import parse_overloads
 from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function, SwiftModule, _render, MagicMethods, \
     BinaryMagicMethod, UnaryMagicMethod
 
@@ -34,6 +36,7 @@ def load_module_from_path(module_name: str, module_path: str):
     module = util.module_from_spec(spec)
     try:
         spec.loader.exec_module(module)
+        sys.modules[module_name] = module
     except (NameError, SyntaxError):
         raise BrokenImportError(f'Error loading module {module_path}')
     return module
@@ -52,8 +55,10 @@ def get_module_functions(module) -> List[Function]:
             return_type=func.__annotations__.get('return'),
         )
         for func in
-        [obj[1] for obj in inspect.getmembers(module) if inspect.isfunction(obj[1])]
+        [obj[1] for obj in inspect.getmembers(module) if inspect.isfunction(obj[1]) and not obj[1].__name__ in ['overload', '_overload_dummy']]
     ]
+    overloads = get_overloads(module, is_module=True)
+    functions = [x for x in functions if x.name not in {f.name for f in overloads}] + overloads
     return flatten_functions(functions)
 
 
@@ -83,8 +88,15 @@ def get_functions(cls) -> List[Function]:
             return_type=func.__annotations__.get('return'),
         )
         for func in
-        [inspect.getattr_static(cls, func) for func in dir(cls) if callable(inspect.getattr_static(cls, func)) and not func.startswith("__")]
+        [
+            inspect.getattr_static(cls, func)
+            for func in dir(cls)
+            if callable(inspect.getattr_static(cls, func)) and not func.startswith("__") and not inspect.getattr_static(cls, func).__name__ in ['overload', '_overload_dummy']
+        ]
+        # [obj[1] for obj in inspect.getmembers(cls) if inspect.isfunction(obj[1]) and not obj[1].__name__.startswith('_overload')]
     ]
+    overloads = get_overloads(cls, is_module=False)
+    functions = [x for x in functions if x.name not in {f.name for f in overloads}] + overloads
     return flatten_functions(functions)
 
 
@@ -106,7 +118,7 @@ def flatten_functions(functions) -> List[Function]:
                     l.append(arg)
         for l in flattened_args:
             result.append(Function(name=f.name, args=l, cls=f.cls, return_type=f.return_type))
-        return result
+    return result
 
 
 binary_magic_mappings = {
@@ -172,9 +184,9 @@ def create_class_orm(cls) -> SwiftClass:
     )
 
 
-def get_overloads(cls):
-    cls.spl
-
+def get_overloads(module_or_class, is_module: bool = False):
+    indents = 0 if is_module else 1
+    return parse_overloads(inspect.getsource(module_or_class), indentation=indents, module_or_class_name=module_or_class.__name__)
 
 
 def create_typed_python(modules: List[SwiftModule], target_path: str):
@@ -183,3 +195,11 @@ def create_typed_python(modules: List[SwiftModule], target_path: str):
         (Path(target_path) / f'{module.swift_module_name}.swift').write_text(code)
     code = _render('typed_python.swift.j2', {'modules': modules})
     (Path(target_path) / f'typed_python.swift').write_text(code)
+
+
+if __name__ == '__main__':
+    build_swift_wrappers_module(
+        module_name=None,
+        module_path='/Users/biellls/Development/Swift/chip8/Sources/python',
+        target_dir='/Users/biellls/Development/Swift/chip8/Sources/chip8'
+    )

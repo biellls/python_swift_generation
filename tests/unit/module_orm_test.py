@@ -14,7 +14,7 @@ def test_basic_module_orm():
             module='samples.basic_module',
             static_vars=[],
             instance_vars=[NameAndType(name='c', type=bool)],
-            init_params=[],
+            init_params=[[]],
             methods=[Function(name='d', args=[NameAndType('x', int), NameAndType('y', int)], cls='instancemethod', return_type=float)],
             magic_methods=MagicMethods(),
         )],

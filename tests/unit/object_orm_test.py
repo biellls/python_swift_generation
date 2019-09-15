@@ -13,7 +13,7 @@ def test_simple_create_object_orm():
         module='samples.basic',
         static_vars=[NameAndType(name='dimensions', type=int)],
         instance_vars=[NameAndType(name='x', type=None), NameAndType(name='y', type=None)],
-        init_params=[NameAndType(name='x', type=float), NameAndType(name='y', type=float)],
+        init_params=[[NameAndType(name='x', type=float), NameAndType(name='y', type=float)]],
         methods=[Function(name='magnitude', args=[], return_type=float, cls='instancemethod')],
         magic_methods=MagicMethods(),
     )
@@ -25,7 +25,7 @@ def test_simple_create_object_orm2():
         module='samples.basic',
         static_vars=[NameAndType(name='b', type=Any)],
         instance_vars=[NameAndType(name='a', type=Any), NameAndType(name='b', type=Any)],
-        init_params=[],
+        init_params=[[]],
         methods=[Function(name='f', args=[], return_type=None, cls='instancemethod')],
         magic_methods=MagicMethods(),
     )
@@ -38,7 +38,7 @@ def test_simple_create_object_orm3():
         module='samples.basic',
         static_vars=[],
         instance_vars=[],
-        init_params=[],
+        init_params=[[]],
         methods=[Function(name='a', args=[], return_type=Optional[int], cls='staticmethod')],
         magic_methods=MagicMethods(),
     )
@@ -52,7 +52,7 @@ def test_simple_create_object_orm4():
         module='samples.basic',
         static_vars=[],
         instance_vars=[NameAndType('p', int)],
-        init_params=[],
+        init_params=[[]],
         methods=[Function(name='f', args=[NameAndType('x', int), NameAndType('y', int, 3)], return_type=None, cls='instancemethod')],
         magic_methods=MagicMethods(),
     )
@@ -65,7 +65,7 @@ def test_simple_create_object_orm5():
         module='samples.basic',
         static_vars=[],
         instance_vars=[],
-        init_params=[],
+        init_params=[[]],
         methods=[],
         magic_methods=MagicMethods(
             pos__=UnaryMagicMethod(symbol='+', python_magic_method='__pos__', swift_protocol_name=None),
@@ -83,7 +83,7 @@ def test_complex_create_object_orm1():
         module='samples.complex',
         static_vars=[],
         instance_vars=[],
-        init_params=[],
+        init_params=[[]],
         methods=[
             Function(name='f', args=[NameAndType('x', int), NameAndType('y', int), NameAndType('z', float)], return_type=float, cls='instancemethod'),
             Function(name='f', args=[NameAndType('x', int), NameAndType('y', float), NameAndType('z', float)], return_type=float, cls='instancemethod'),
@@ -99,7 +99,7 @@ def test_complex_create_object_orm3():
         module='samples.complex',
         static_vars=[],
         instance_vars=[],
-        init_params=[],
+        init_params=[[]],
         methods=[
             Function(name='foo', args=[NameAndType('x', List[str])], return_type=List[str], cls='instancemethod'),
         ],

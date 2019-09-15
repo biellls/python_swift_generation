@@ -32,6 +32,8 @@ class {{ swift_class_name }} {
     {% endfor %}
 
     {% for cls in classes %}
+    let {{ cls.object_name }} = {{ cls.swift_object_name }}.self
+
     {% for init_args in cls.init_params %}
     static func {{ cls.object_name }}({{ function_args_definition(init_args) }}) -> {{ cls.swift_object_name }} {
         return {{ cls.swift_object_name }}({{ init_named_args_call(init_args) }})

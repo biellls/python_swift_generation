@@ -39,5 +39,6 @@ itertools.count(1) // Calls itertools count since it knows itertools is a module
 - Add sequence support
 - Handle protocols (how? Manually define conformance externally?)
 - Handle args and kwargs
+- Add docstrings
 - Nested modules
 - Add context managers

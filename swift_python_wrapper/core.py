@@ -133,7 +133,7 @@ binary_magic_mappings = {
     '__add__': ('+', None, float),
     '__sub__': ('-', None, float),
     '__mul__': ('*', None, float),
-    '__div__': ('/', None, float),
+    '__truediv__': ('/', None, float),
     '__mod__': ('%', None, float),
     '__lshift__': ('<<', None, float),
     '__rshift__': ('>>', None, float),
@@ -141,6 +141,15 @@ binary_magic_mappings = {
     '__isub__': ('-=', None, float),
     '__imul__': ('*=', None, float),
     '__idiv__': ('/=', None, float),
+    '__eq__': ('==', None, bool),
+    '__ne__': ('!=', None, bool),
+    '__lt__': ('<', None, bool),
+    '__le__': ('<=', None, bool),
+    '__gt__': ('>', None, bool),
+    '__ge__': ('>=', None, bool),
+    '__and__': ('&', None, bytes),
+    '__or__': ('|', None, bytes),
+    '__xor__': ('~', None, bytes),
 }
 
 unary_magic_mappings = {

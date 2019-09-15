@@ -120,6 +120,7 @@ class ExpressibleByLiteralProtocol(NamedTuple):
 
 class MagicMethods(NamedTuple):
     # Equality
+    eq__: Union[bool, BinaryMagicMethod] = False
     ne__: Union[bool, BinaryMagicMethod] = False
     gt__: Union[bool, BinaryMagicMethod] = False
     lt__: Union[bool, BinaryMagicMethod] = False
@@ -131,7 +132,7 @@ class MagicMethods(NamedTuple):
     add__: Union[bool, BinaryMagicMethod] = False
     sub__: Union[bool, BinaryMagicMethod] = False
     mul__: Union[bool, BinaryMagicMethod] = False
-    div__: Union[bool, BinaryMagicMethod] = False
+    truediv__: Union[bool, BinaryMagicMethod] = False
     mod__: Union[bool, BinaryMagicMethod] = False
     lshift__: Union[bool, BinaryMagicMethod] = False
     rshift__: Union[bool, BinaryMagicMethod] = False

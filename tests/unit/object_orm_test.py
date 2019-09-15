@@ -42,7 +42,7 @@ def test_simple_create_object_orm3():
         methods=[Function(name='a', args=[], return_type=Optional[int], cls='staticmethod')],
         magic_methods=MagicMethods(),
     )
-    assert swift_obj.methods[0].mapped_return_type == 'TPythonInt?'
+    assert swift_obj.methods[0].mapped_return_type == 'TPint?'
 
 
 def test_simple_create_object_orm4():
@@ -105,4 +105,4 @@ def test_complex_create_object_orm3():
         ],
         magic_methods=MagicMethods(),
     )
-    assert swift_obj.methods[0].mapped_return_type == 'TPythonList<TPythonStr>'
+    assert swift_obj.methods[0].mapped_return_type == 'TPList<TPstr>'

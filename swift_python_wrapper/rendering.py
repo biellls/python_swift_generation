@@ -53,7 +53,7 @@ class SwiftClass(NamedTuple):
 
     @property
     def swift_object_name(self):
-        return f'TPython{self.object_name}'
+        return f'TP{self.object_name}'
 
     @property
     def as_dict(self):
@@ -74,7 +74,7 @@ class SwiftModule(NamedTuple):
 
     @property
     def swift_module_name(self):
-        return f'TPython{self.module_name.replace(".", "_")}'
+        return f'TPythonModule_{self.module_name.replace(".", "_")}'
 
     @property
     def as_dict(self):
@@ -85,21 +85,19 @@ class SwiftModule(NamedTuple):
 
 
 def _convert_to_swift_type(python_type) -> str:
-    def capitalize(s):
-        return s[:1].upper() + s[1:]
     if python_type == Any or python_type is None:
         return 'PythonObject'
     elif isinstance(python_type, str):
-        return f'TPython{capitalize(python_type)}'
+        return f'TP{python_type}'
     elif python_type.__class__ == type(Union) and python_type.__args__[1] == type(None):
         return _convert_to_swift_type(python_type.__args__[0]) + '?'
     elif python_type.__class__ == type(List):
-        return f'TPythonList<{_convert_to_swift_type(python_type.__args__[0])}>'
+        return f'TPList<{_convert_to_swift_type(python_type.__args__[0])}>'
     elif python_type.__class__ == type(Sequence):
-        return f'TPythonSequence<{_convert_to_swift_type(python_type.__args__[0])}>'
+        return f'TPSequence<{_convert_to_swift_type(python_type.__args__[0])}>'
     elif isinstance(python_type, _ForwardRef):
-        return f'TPython{capitalize(python_type.__forward_arg__)}'
-    return f'TPython{capitalize(python_type.__name__)}'
+        return f'TP{python_type.__forward_arg__}'
+    return f'TP{python_type.__name__}'
 
 
 class BinaryMagicMethod(NamedTuple):

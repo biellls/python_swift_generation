@@ -27,6 +27,7 @@ itertools.count(1) // Calls itertools count since it knows itertools is a module
 - Maps magic methods to swift special functions
 
 ### Pending
+- Improve default values handling
 - Handle protocols (how? Manually define conformance externally?)
 - Nested modules
 - Generics

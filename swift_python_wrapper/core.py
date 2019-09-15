@@ -173,13 +173,19 @@ def get_magic_methods(cls) -> MagicMethods:
     return MagicMethods(**magic_methods)
 
 
+def get_init_params(cls) -> List[List[NameAndType]]:
+    params = [NameAndType(name=k, type=v) for k, v in inspect.getfullargspec(cls.__init__).annotations.items()]
+    flattened_params = flatten_functions([Function(name='__init__', args=params, cls=cls.__name__)])
+    return [x.args for x in flattened_params]
+
+
 def create_class_orm(cls) -> SwiftClass:
     static_vars = [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items() if getattr(cls, k, False)]
     instance_vars = \
         [NameAndType(name=x, type=None) for x in cls.__slots__] if hasattr(cls, '__slots__') else [] + \
         [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items()] + \
         [NameAndType(name, type=getattr(prop.fget, '__annotations__', {}).get('return')) for name, prop in inspect.getmembers(cls, lambda o: isinstance(o, property))]
-    init_params = [NameAndType(name=k, type=v) for k, v in inspect.getfullargspec(cls.__init__).annotations.items()]
+    init_params = get_init_params(cls)
     return SwiftClass(
         object_name=cls.__name__,
         module=cls.__module__,

@@ -47,7 +47,7 @@ class SwiftClass(NamedTuple):
     module: str
     static_vars: List[NameAndType]
     instance_vars: List[NameAndType]
-    init_params: List[NameAndType]
+    init_params: List[List[NameAndType]]
     methods: List[Function]
     magic_methods: 'MagicMethods'
 

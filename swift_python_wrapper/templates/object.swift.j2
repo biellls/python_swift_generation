@@ -32,7 +32,6 @@ class {{ swift_object_name }} {
     }
 
     {% endfor %}
-    // TODO: Add classmethods
     {% for method in methods %}
     {% if not method.return_type %}
     @discardableResult

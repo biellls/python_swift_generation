@@ -28,6 +28,9 @@ itertools.count(1) // Calls itertools count since it knows itertools is a module
 
 ### Pending
 - Improve default values handling
+- Handle init overloads (works for regular functions/methods already)
+- Handle -> None annotation in init
+- Add sequence support
 - Handle protocols (how? Manually define conformance externally?)
 - Nested modules
 - Generics

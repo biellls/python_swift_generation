@@ -87,17 +87,17 @@ def test_parse_overloads():
 from typing import overload
 
 @overload
-def f(x: int) -> int: ...
+def f(x: int) -> 'int': ...
 @overload
 def f(x: float) -> float: ...
 
 class A:
     @overload
-    def f(x: str) -> str:
+    def f(self, x: str) -> str:
         ...
         
     @overload
-    def f(x: bool) -> bool:
+    def f(self, x: bool) -> bool:
         ...
 """
     assert parse_overloads(code, indentation=0, module_or_class_name='test_module') == [

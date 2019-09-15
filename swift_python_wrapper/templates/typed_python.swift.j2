@@ -1,4 +1,11 @@
+import PythonKit
+
 public let TPython = TypedPythonInterface()
+
+protocol TPobject {
+    static var wrappedClass: PythonObject { get }
+    var wrappedInstance: PythonObject { get }
+}
 
 public class TypedPythonInterface {
     let `import` = ImportInterface()
@@ -6,6 +13,6 @@ public class TypedPythonInterface {
 
 public class ImportInterface {
     {% for module in modules %}
-    let {{ module.module_name }} = {{ module.swift_module_name }}.self
+    let {{ module.python_module_name }} = {{ module.swift_module_name }}.self
     {% endfor %}
 }

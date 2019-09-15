@@ -29,6 +29,7 @@ itertools.count(1) // Calls itertools count since it knows itertools is a module
 ### Pending
 - Improve public/private visibility
 - Improve default values handling
+- Positional only arguments (C functions)
 - Handle init overloads (works for regular functions/methods already)
 - Handle -> None annotation in init
 - Handle nested unions

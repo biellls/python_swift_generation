@@ -11,6 +11,17 @@ class NameAndType(NamedTuple):
     default_value: Any = inspect.Parameter.empty
 
     @property
+    def mapped_default_value(self):
+        if self.default_value in [True, False]:
+            return str(self.default_value).lower()
+        elif self.default_value is None:
+            return 'nil'
+        elif isinstance(self.default_value, str):
+            return f'"{self.default_value}"'
+        else:
+            return self.default_value
+
+    @property
     def mapped_type(self):
         return _convert_to_swift_type(self.type)
 
@@ -56,8 +67,12 @@ class SwiftClass(NamedTuple):
         return f'TP{self.object_name}'
 
     @property
+    def python_module_name(self):
+        return self.module.replace('.stub', '')
+
+    @property
     def as_dict(self):
-        return dict(swift_object_name=self.swift_object_name, **self._asdict())
+        return dict(swift_object_name=self.swift_object_name, python_module_name=self.python_module_name, **self._asdict())
 
     def render_magic_methods(self):
         return _render('magic_methods.swift.j2', self.as_dict)
@@ -77,16 +92,20 @@ class SwiftModule(NamedTuple):
         return f'TPythonModule_{self.module_name.replace(".", "_")}'
 
     @property
+    def python_module_name(self):
+        return self.module_name.replace('.stub', '')
+
+    @property
     def as_dict(self):
-        return dict(swift_class_name=self.swift_module_name, **self._asdict())
+        return dict(swift_class_name=self.swift_module_name, python_module_name=self.python_module_name, **self._asdict())
 
     def render(self):
         return _render('module.swift.j2', self.as_dict)
 
 
 def _convert_to_swift_type(python_type) -> str:
-    if python_type == Any or python_type is None:
-        return 'PythonObject'
+    if python_type == Any or python_type == type(None) or python_type == inspect.Parameter.empty:
+        return 'TPobject'
     elif isinstance(python_type, str):
         return f'TP{python_type}'
     elif python_type.__class__ == type(Union) and python_type.__args__[1] == type(None):
@@ -119,6 +138,16 @@ class UnaryMagicMethod(NamedTuple):
 class ExpressibleByLiteralProtocol(NamedTuple):
     protocol_name: str
     literal_type: str
+
+    @property
+    def label_name(self) -> str:
+        mappings = {
+            'Double': 'floatLiteral',
+            'Int': 'integerLiteral',
+            'String': 'stringLiteral',
+            'Bool': 'booleanLiteral',
+        }
+        return mappings[self.literal_type]
 
 
 class MagicMethods(NamedTuple):
@@ -158,6 +187,7 @@ class MagicMethods(NamedTuple):
     ExpressibleByIntegerLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
     ExpressibleByFloatLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
     ExpressibleByStringLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
+    ExpressibleByBooleanLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
 
     @property
     def unary_magic_methods(self) -> List[UnaryMagicMethod]:

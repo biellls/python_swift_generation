@@ -149,7 +149,7 @@ binary_magic_mappings = {
     '__ge__': ('>=', None, bool),
     '__and__': ('&', None, bytes),
     '__or__': ('|', None, bytes),
-    '__xor__': ('~', None, bytes),
+    # '__xor__': ('~', None, bytes),
 }
 
 unary_magic_mappings = {

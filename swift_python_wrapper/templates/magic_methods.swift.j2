@@ -26,11 +26,11 @@ extension {{ swift_object_name }} {
 extension {{ swift_object_name }} {
     subscript(index: {{ magic_methods.getitem__.index_type | convert_to_swift_type }}) -> {{ magic_methods.getitem__.return_type | convert_to_swift_type }} {
         get {
-            return {{ magic_methods.getitem__.return_type | convert_to_swift_type }}(self.wrappedClass.__get_item__(index.wrappedInstance))
+            return {{ magic_methods.getitem__.return_type | convert_to_swift_type }}({{ swift_object_name }}.wrappedClass.__get_item__(index.wrappedInstance))
         }
         {% if magic_methods.setitem__ %}
         set(newValue) {
-            return self.wrappedClass.__set_item__(index.wrappedInstance, newValue.wrappedInstance)
+            {{ swift_object_name }}.wrappedClass.__set_item__(index.wrappedInstance, newValue.wrappedInstance)
         }
         {% endif %}
     }
@@ -39,8 +39,8 @@ extension {{ swift_object_name }} {
 {% endif %}
 {% for ebl in magic_methods.expressible_by_literals %}
 extension {{ swift_object_name }}: {{ ebl.protocol_name }} {
-  public init(literal value: {{ ebl.literal_type }}) {
-    self.wrappedInstance = self.wrappedClass(value)
+  init({{ ebl.label_name }} value: {{ ebl.literal_type }}) {
+    self.wrappedInstance = {{ swift_object_name }}.wrappedClass(value)
   }
 }
 

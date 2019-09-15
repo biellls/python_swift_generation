@@ -1,4 +1,4 @@
-{% macro function_args_definition(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.mapped_type }}{% if arg.has_default_value %} = {{ arg.default_value }}{% endif %}{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
+{% macro function_args_definition(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.mapped_type }}{% if arg.has_default_value %} = {{ arg.mapped_default_value }}{% endif %}{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
 {% macro function_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}.wrappedInstance{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
 {% macro init_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}.wrappedInstance{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
 {% macro wrapped_return(method) %}let val = {{ 'wrappedClass' if method.static_method else 'wrappedInstance' }}[dynamicMember: "{{ method.name }}"]({{ function_named_args_call(method.args) }})
@@ -11,8 +11,8 @@
 {%- endif %}
 {% endmacro %}
 
-class {{ swift_object_name }} {
-    static let wrappedClass = Python.import("{{ module }}").{{object_name}}
+struct {{ swift_object_name }}: TPobject, CustomStringConvertible {
+    static let wrappedClass = Python.import("{{ python_module_name }}").{{object_name}}
     let wrappedInstance: PythonObject
 
     {% for static_var in static_vars %}
@@ -45,6 +45,7 @@ class {{ swift_object_name }} {
     }
 
     {% endfor %}
+    var description: String { return self.wrappedInstance.description }
 }
 
 {{ rendered_magic_methods }}

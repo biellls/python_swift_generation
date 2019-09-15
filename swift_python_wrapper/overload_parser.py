@@ -40,7 +40,7 @@ def a_str(source: str, i: int, s: str) -> int:
     for c in s:
         tk = get_tk(source, i)
         if tk != c:
-            raise ParseError(f'Attempting to parse "{s}". Expected "{c}", found "{tk}"')
+            raise ParseError(f'Attempting to parse "{s}". Expected "{c}", found "{tk}" in source:\n{source}')
         i += 1
     return i
 
@@ -48,11 +48,11 @@ def a_str(source: str, i: int, s: str) -> int:
 def a_id(source: str, i: int) -> Tuple[str, int]:
     start = i
     tk = get_tk(source, i)
-    if not tk.isalpha():
-        raise ParseError(f'Char "{tk}" not allowed as first character in identifier')
+    if not tk.isalpha() and tk != '_':
+        raise ParseError(f'Char "{tk}" not allowed as first character in identifier. Parsing:\n{source}')
     i += 1
     tk = get_tk(source, i)
-    while tk == '_' or tk.isalnum():
+    while tk == '_' or tk.isalnum() and tk != '_':
         i += 1
         tk = get_tk(source, i)
     return source[start:i], i
@@ -60,7 +60,15 @@ def a_id(source: str, i: int) -> Tuple[str, int]:
 
 def a_get_type(source: str, i: int) -> Tuple[type, int]:
     start = i
-    identifier, i = a_id(source, i)
+    if get_tk(source, i) == "'":
+        i += 1
+        t, i = a_get_type(source, i)
+        i = a_str(source, i, "'")
+        # i += 1
+        # identifier, i = a_id(source, i)
+        # i = a_str(source, i, "'")
+    else:
+        identifier, i = a_id(source, i)
 
     if get_tk(source, i) == '[':
         i += 1
@@ -76,7 +84,7 @@ def a_get_type(source: str, i: int) -> Tuple[type, int]:
         if tk != ']':
             raise ParseError(f'Expected "]", found {tk}')
         i += 1
-    return eval(source[start:i]), i
+    return eval(source[start:i].replace("'", '')), i
 
 
 def a_typed_param(source: str, i: int) -> Tuple[NameAndType, int]:
@@ -91,6 +99,12 @@ def a_typed_param(source: str, i: int) -> Tuple[NameAndType, int]:
 
 def a_typed_params(source: str, i: int) -> Tuple[List[NameAndType], int]:
     result = []
+    if source[i:i+len('self')] == 'self':
+        i += len('self')
+        i = a_whitespace(source, i, optional=True)
+        i = a_str(source, i, ',')
+        i = a_whitespace(source, i, optional=True)
+
     tp, i = a_typed_param(source, i)
     result.append(tp)
     while get_tk(source, i) == ',':

@@ -2,7 +2,7 @@
 
 Status: Alpha.
 
-Generates Swift wrapper files for typed Python code or stub files. Improves Python interop by allowing auto-complete, type safety and null safety at the boundary. Removes unintuitive bugs that could happen from using the Python module such as:
+Generates Swift wrapper files for typed Python 3 code or stub files. Improves Python interop by allowing auto-complete, type safety and null safety at the boundary. Removes unintuitive bugs that could happen from using the Python module such as:
 
 ```Swift
 let itertools = Python.import("itertools")
@@ -27,11 +27,16 @@ itertools.count(1) // Calls itertools count since it knows itertools is a module
 - Maps magic methods to swift special functions
 
 ### Pending
+- Improve public/private visibility
 - Improve default values handling
 - Handle init overloads (works for regular functions/methods already)
 - Handle -> None annotation in init
+- Handle nested unions
+- Handle slices
+- Add safety checks in inits to make sure they don't wrap the incorrect python object?
+- Generics
 - Add sequence support
 - Handle protocols (how? Manually define conformance externally?)
+- Handle args and kwargs
 - Nested modules
-- Generics
 - Add context managers

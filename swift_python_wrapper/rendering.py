@@ -97,7 +97,10 @@ def _convert_to_swift_type(python_type) -> str:
         return f'TPSequence<{_convert_to_swift_type(python_type.__args__[0])}>'
     elif isinstance(python_type, _ForwardRef):
         return f'TP{python_type.__forward_arg__}'
-    return f'TP{python_type.__name__}'
+    try:
+        return f'TP{python_type.__name__}'
+    except AttributeError:
+        raise
 
 
 class BinaryMagicMethod(NamedTuple):
@@ -154,6 +157,7 @@ class MagicMethods(NamedTuple):
     # Literal expressible protocols
     ExpressibleByIntegerLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
     ExpressibleByFloatLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
+    ExpressibleByStringLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
 
     @property
     def unary_magic_methods(self) -> List[UnaryMagicMethod]:

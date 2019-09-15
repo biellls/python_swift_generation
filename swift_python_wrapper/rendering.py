@@ -113,6 +113,11 @@ class UnaryMagicMethod(NamedTuple):
     swift_protocol_name: Optional[str]
 
 
+class ExpressibleByLiteralProtocol(NamedTuple):
+    protocol_name: str
+    literal_type: str
+
+
 class MagicMethods(NamedTuple):
     # Equality
     ne__: Union[bool, BinaryMagicMethod] = False
@@ -145,6 +150,9 @@ class MagicMethods(NamedTuple):
     iter__: bool = False
     # Others
     context_manager: bool = False
+    # Literal expressible protocols
+    ExpressibleByIntegerLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
+    ExpressibleByFloatLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
 
     @property
     def unary_magic_methods(self) -> List[UnaryMagicMethod]:
@@ -159,6 +167,14 @@ class MagicMethods(NamedTuple):
         result = []
         for v in self._asdict().values():
             if isinstance(v, BinaryMagicMethod):
+                result.append(v)
+        return result
+
+    @property
+    def expressible_by_literals(self) -> List[ExpressibleByLiteralProtocol]:
+        result = []
+        for v in self._asdict().values():
+            if isinstance(v, ExpressibleByLiteralProtocol):
                 result.append(v)
         return result
 

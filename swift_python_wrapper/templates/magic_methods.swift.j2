@@ -35,4 +35,13 @@ extension {{ swift_object_name }} {
         {% endif %}
     }
 }
+
 {% endif %}
+{% for ebl in magic_methods.expressible_by_literals %}
+extension {{ swift_object_name }}: {{ ebl.protocol_name }} {
+  public init(literal value: {{ ebl.literal_type }}) {
+    self.wrappedInstance = self.wrappedClass(value)
+  }
+}
+
+{% endfor %}

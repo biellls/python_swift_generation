@@ -21,5 +21,6 @@ class ComplexClass2:
 
 
 class ComplexClass3:
+    # SWIFT_WRAPPER.ComplexClass3: ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral
     def foo(self, x: List[str]) -> List[str]:
         pass

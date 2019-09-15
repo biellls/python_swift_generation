@@ -1,4 +1,5 @@
 import inspect
+import re
 import sys
 from copy import deepcopy
 from importlib import util
@@ -8,7 +9,7 @@ from typing import List, Union
 
 from swift_python_wrapper.overload_parser import parse_overloads
 from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function, SwiftModule, _render, MagicMethods, \
-    BinaryMagicMethod, UnaryMagicMethod
+    BinaryMagicMethod, UnaryMagicMethod, ExpressibleByLiteralProtocol
 
 
 class BrokenImportError(Exception):
@@ -131,11 +132,27 @@ def flatten_functions(functions) -> List[Function]:
 binary_magic_mappings = {
     '__add__': ('+', None, float),
     '__sub__': ('-', None, float),
+    '__mul__': ('*', None, float),
+    '__div__': ('/', None, float),
+    '__mod__': ('%', None, float),
+    '__lshift__': ('<<', None, float),
+    '__rshift__': ('>>', None, float),
+    '__iadd__': ('+=', None, float),
+    '__isub__': ('-=', None, float),
+    '__imul__': ('*=', None, float),
+    '__idiv__': ('/=', None, float),
 }
 
 unary_magic_mappings = {
     '__pos__': ('+', None, float),
     '__neg__': ('-', None, float),
+}
+
+expressible_by_literal_protocols = {
+    'ExpressibleByIntegerLiteral': 'Int',
+    'ExpressibleByFloatLiteral': 'Double',
+    'ExpressibleByBooleanLiteral': 'Bool',
+    'ExpressibleByStringLiteral': 'String',
 }
 
 
@@ -170,7 +187,24 @@ def get_magic_methods(cls) -> MagicMethods:
             )
         elif func.__name__ == '__setitem__':
             magic_methods[func.__name__.lstrip('_')] = True
+
+    for protocol_name in get_swift_wrapper_annotations(cls):
+        if protocol_name in expressible_by_literal_protocols.keys():
+            magic_methods[protocol_name] = ExpressibleByLiteralProtocol(
+                protocol_name=protocol_name,
+                literal_type=expressible_by_literal_protocols[protocol_name],
+            )
+
     return MagicMethods(**magic_methods)
+
+
+def get_swift_wrapper_annotations(cls) -> List[str]:
+    result = []
+    for line in inspect.getsource(cls).splitlines(keepends=False):
+        for match in re.finditer(r'#\s*SWIFT_WRAPPER(\.\w+):\s*(\w+(?:\s*,\s*\w+)?)', inspect.getsource(cls)):
+            annotated_class, protocols = match.groups()
+            result += [x.strip() for x in protocols.split(',')]
+    return result
 
 
 def get_init_params(cls) -> List[List[NameAndType]]:

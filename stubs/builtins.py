@@ -3,6 +3,7 @@ from typing import overload, Union, SupportsInt, Text, Sequence, Tuple, Optional
 
 # noinspection PyPropertyDefinition,PyPep8Naming,PyShadowingBuiltins
 class int:
+    # SWIFT_WRAPPER.int: ExpressibleByIntegerLiteral
     # @not_overload
     # def __init__(self, x: Union[Text, bytes, SupportsInt] = ...) -> None: ...
     # @not_overload

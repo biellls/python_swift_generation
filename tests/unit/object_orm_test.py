@@ -3,7 +3,7 @@ from typing import Any, Optional, List
 from samples.complex import ComplexClass1, ComplexClass2, ComplexClass3
 from swift_python_wrapper.core import create_class_orm
 from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function, MagicMethods, BinaryMagicMethod, \
-    UnaryMagicMethod
+    UnaryMagicMethod, ExpressibleByLiteralProtocol
 from samples.basic import BasicClass, BasicClass2, BasicClass3, BasicClass4, BasicClass5
 
 
@@ -103,6 +103,13 @@ def test_complex_create_object_orm3():
         methods=[
             Function(name='foo', args=[NameAndType('x', List[str])], return_type=List[str], cls='instancemethod'),
         ],
-        magic_methods=MagicMethods(),
+        magic_methods=MagicMethods(
+            ExpressibleByIntegerLiteral=ExpressibleByLiteralProtocol('ExpressibleByIntegerLiteral', literal_type='Int'),
+            ExpressibleByFloatLiteral=ExpressibleByLiteralProtocol('ExpressibleByFloatLiteral', literal_type='Double'),
+        ),
     )
     assert swift_obj.methods[0].mapped_return_type == 'TPList<TPstr>'
+    assert swift_obj.magic_methods.expressible_by_literals == [
+        ExpressibleByLiteralProtocol('ExpressibleByIntegerLiteral', literal_type='Int'),
+        ExpressibleByLiteralProtocol('ExpressibleByFloatLiteral', literal_type='Double'),
+    ]

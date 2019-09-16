@@ -29,6 +29,13 @@ class NameAndType(NamedTuple):
     def has_default_value(self):
         return self.default_value != inspect.Parameter.empty
 
+    @property
+    def wrapped_instance(self):
+        if self.type.__class__ == type(Tuple):
+            return f'PythonObject({self.name})'
+        else:
+            return f'{self.name}.wrappedInstance'
+
 
 class Function(NamedTuple):
     name: str

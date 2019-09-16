@@ -1,5 +1,7 @@
 from typing import Any, Optional, List
 
+import mock
+
 from samples.complex import ComplexClass1, ComplexClass2, ComplexClass3
 from swift_python_wrapper.core import create_class_orm
 from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function, MagicMethods, BinaryMagicMethod, \
@@ -15,7 +17,7 @@ def test_simple_create_object_orm():
         instance_vars=[NameAndType(name='x', type=None), NameAndType(name='y', type=None)],
         init_params=[[NameAndType(name='x', type=float), NameAndType(name='y', type=float)]],
         methods=[Function(name='magnitude', args=[], return_type=float, cls='instancemethod')],
-        magic_methods=MagicMethods(),
+        magic_methods=mock.ANY,
     )
 
 
@@ -27,7 +29,7 @@ def test_simple_create_object_orm2():
         instance_vars=[NameAndType(name='a', type=Any), NameAndType(name='b', type=Any)],
         init_params=[[]],
         methods=[Function(name='f', args=[], return_type=None, cls='instancemethod')],
-        magic_methods=MagicMethods(),
+        magic_methods=mock.ANY,
     )
 
 
@@ -40,7 +42,7 @@ def test_simple_create_object_orm3():
         instance_vars=[],
         init_params=[[]],
         methods=[Function(name='a', args=[], return_type=Optional[int], cls='staticmethod')],
-        magic_methods=MagicMethods(),
+        magic_methods=mock.ANY,
     )
     assert swift_obj.methods[0].mapped_return_type == 'TPint?'
 
@@ -54,7 +56,7 @@ def test_simple_create_object_orm4():
         instance_vars=[NameAndType('p', int)],
         init_params=[[]],
         methods=[Function(name='f', args=[NameAndType('x', int), NameAndType('y', int, 3)], return_type=None, cls='instancemethod')],
-        magic_methods=MagicMethods(),
+        magic_methods=mock.ANY,
     )
 
 
@@ -67,12 +69,9 @@ def test_simple_create_object_orm5():
         instance_vars=[],
         init_params=[[]],
         methods=[],
-        magic_methods=MagicMethods(
-            pos__=UnaryMagicMethod(symbol='+', python_magic_method='__pos__', swift_protocol_name=None),
-            add__=BinaryMagicMethod(symbol='+', python_magic_method='__add__', swift_protocol_name=None, right_classes=[(int, int)])
-        ),
+        magic_methods=mock.ANY,
     )
-    assert swift_obj.magic_methods.binary_magic_methods == [BinaryMagicMethod(symbol='+', python_magic_method='__add__', swift_protocol_name=None, right_classes=[(int, int)])]
+    assert BinaryMagicMethod(symbol='+', python_magic_method='__add__', swift_protocol_name=None, right_classes=[(int, int)]) in swift_obj.magic_methods.binary_magic_methods
     assert swift_obj.magic_methods.unary_magic_methods == [UnaryMagicMethod(symbol='+', python_magic_method='__pos__', swift_protocol_name=None)]
 
 
@@ -88,7 +87,7 @@ def test_complex_create_object_orm1():
             Function(name='f', args=[NameAndType('x', int), NameAndType('y', int), NameAndType('z', float)], return_type=float, cls='instancemethod'),
             Function(name='f', args=[NameAndType('x', int), NameAndType('y', float), NameAndType('z', float)], return_type=float, cls='instancemethod'),
         ],
-        magic_methods=MagicMethods(),
+        magic_methods=mock.ANY,
     )
 
 
@@ -103,10 +102,7 @@ def test_complex_create_object_orm3():
         methods=[
             Function(name='foo', args=[NameAndType('x', List[str])], return_type=List[str], cls='instancemethod'),
         ],
-        magic_methods=MagicMethods(
-            ExpressibleByIntegerLiteral=ExpressibleByLiteralProtocol('ExpressibleByIntegerLiteral', literal_type='Int'),
-            ExpressibleByFloatLiteral=ExpressibleByLiteralProtocol('ExpressibleByFloatLiteral', literal_type='Double'),
-        ),
+        magic_methods=mock.ANY,
     )
     assert swift_obj.methods[0].mapped_return_type == 'TPList<TPstr>'
     assert swift_obj.magic_methods.expressible_by_literals == [

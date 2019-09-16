@@ -1,3 +1,5 @@
+import mock
+
 from swift_python_wrapper.core import create_module_orm
 from swift_python_wrapper.rendering import SwiftModule, NameAndType, Function, SwiftClass, MagicMethods
 from samples import basic_module
@@ -16,6 +18,6 @@ def test_basic_module_orm():
             instance_vars=[NameAndType(name='c', type=bool)],
             init_params=[[]],
             methods=[Function(name='d', args=[NameAndType('x', int), NameAndType('y', int)], cls='instancemethod', return_type=float)],
-            magic_methods=MagicMethods(),
+            magic_methods=mock.ANY,
         )],
     )

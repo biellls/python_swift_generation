@@ -240,9 +240,10 @@ def create_class_orm(cls) -> SwiftClass:
     )
 
 
-def get_overloads(module_or_class, is_module: bool = False):
+def get_overloads(module_or_class, is_module: bool = False, magic_methods: bool = False):
     indents = 0 if is_module else 1
-    return parse_overloads(inspect.getsource(module_or_class), indentation=indents, module_or_class_name=module_or_class.__name__)
+    overloads = parse_overloads(inspect.getsource(module_or_class), indentation=indents, module_or_class_name=module_or_class.__name__)
+    return [x for x in overloads if (magic_methods and x.name.startswith('__')) or (not magic_methods and not x.name.startswith('__'))]
 
 
 def create_typed_python(modules: List[SwiftModule], target_path: str):

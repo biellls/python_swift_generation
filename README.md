@@ -17,9 +17,9 @@ itertools.count(1) // Calls itertools count since it knows itertools is a module
 ### Finished
 
 - Generate wrappers for functions, classes and modules
-- Translate types
+- Translate python types to swift
 - Optional types map to swift nullable (null safe Python!)
-- Union types generate several function definitions
+- Union types generate overloaded function definitions
 - @overload annotations are parsed from the source file manually (afaik there's no other way) and generate overloaded function definitions
 - If no return type is specified it returns a discardable PythonObject
 - Support python properties
@@ -38,6 +38,7 @@ itertools.count(1) // Calls itertools count since it knows itertools is a module
 - Generics
 - Add sequence support
 - Handle protocols (how? Manually define conformance externally?)
+- Add error throws annotations (annotating python stubs/code)
 - Handle args and kwargs
 - Add docstrings
 - Nested modules

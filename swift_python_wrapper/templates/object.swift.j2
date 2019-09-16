@@ -5,7 +5,7 @@
 {% if method.return_type and method.mapped_return_type.endswith('?') %}
         if val == Python.None { return nil } else { return {{ method.mapped_return_type.replace('?', '') }}(val) }
 {%- elif method.return_type %}
-        return {{ method.mapped_return_type }}(val)
+        return {{ method.mapped_return_type }}(val){{ method.tuple_return }}
 {% else %}
         return val
 {%- endif %}

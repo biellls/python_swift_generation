@@ -41,6 +41,13 @@ class Function(NamedTuple):
         return _convert_to_swift_type(self.return_type)
 
     @property
+    def tuple_return(self) -> str:
+        if self.return_type.__class__ == type(Tuple):
+            return f'tuple{len(self.return_type.__args__[0])}'
+        else:
+            return ''
+
+    @property
     def static_method(self):
         return self.cls == 'staticmethod'
 
@@ -110,6 +117,9 @@ def _convert_to_swift_type(python_type) -> str:
         return f'TP{python_type}'
     elif python_type.__class__ == type(Union) and python_type.__args__[1] == type(None):
         return _convert_to_swift_type(python_type.__args__[0]) + '?'
+    elif python_type.__class__ == type(Tuple):
+        args = [_convert_to_swift_type(x) for x in python_type.__args__]
+        return f'({", ".join(args)})'
     elif python_type.__class__ == type(List):
         return f'TPList<{_convert_to_swift_type(python_type.__args__[0])}>'
     elif python_type.__class__ == type(Sequence):

@@ -5,7 +5,7 @@
 {% if method.return_type and method.mapped_return_type.endswith('?') %}
         if val == Python.None { return nil } else { return {{ method.mapped_return_type.replace('?', '') }}(val) }
 {%- elif method.return_type %}
-        return {{ method.mapped_return_type }}(val){{ method.tuple_return }}
+        return {{ method.wrapped_return }}
 {% else %}
         return val
 {%- endif %}
@@ -19,7 +19,7 @@ import PythonKit
 class {{ swift_class_name }} {
     static let wrappedModule = Python.import("{{ module_name }}")
     {% for var in vars %}
-    static var {{ var.name }}: {{ var.mapped_type }} { return {{ var.mapped_type }}(wrappedModule[dynamicMember: "{{ var.name }}"]) }
+    static var {{ var.name }}: {{ var.mapped_type }} { return {{ var.wrapped_return_module }} }
     {% endfor %}
 
     {% for method in functions %}

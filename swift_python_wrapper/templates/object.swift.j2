@@ -5,7 +5,7 @@
 {% if method.return_type and method.mapped_return_type.endswith('?') %}
         if val == Python.None { return nil } else { return {{ method.mapped_return_type.replace('?', '') }}(val) }
 {%- elif method.return_type %}
-        return {{ method.mapped_return_type }}(val){{ method.tuple_return }}
+        return {{ method.wrapped_return }}
 {% else %}
         return val
 {%- endif %}
@@ -16,10 +16,10 @@ struct {{ swift_object_name }}: TPobject, CustomStringConvertible {
     let wrappedInstance: PythonObject
 
     {% for static_var in static_vars %}
-    static var {{ static_var.name }}: {{ static_var.mapped_type }} { return {{ static_var.mapped_type }}(wrappedClass[dynamicMember: "{{ static_var.name }}"]) }
+    static var {{ static_var.name }}: {{ static_var.mapped_type }} { return {{ static_var.wrapped_return_static }} }
     {% endfor %}
     {% for instance_var in instance_vars %}
-    var {{ instance_var.name }}: {{ instance_var.mapped_type }} { return {{ instance_var.mapped_type }}(wrappedInstance[dynamicMember: "{{ instance_var.name }}"]) }
+    var {{ instance_var.name }}: {{ instance_var.mapped_type }} { return {{ instance_var.wrapped_return }} }
     {% endfor %}
 
     init(_ po: PythonObject) {

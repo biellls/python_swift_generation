@@ -36,6 +36,27 @@ class NameAndType(NamedTuple):
         else:
             return f'{self.name}.wrappedInstance'
 
+    def _wrapped_return(self, wrapped: str) -> str:
+        if self.type.__class__ == type(Tuple):
+            n = len(self.type.__args__)
+            converted = [f'{_convert_to_swift_type(x)}({wrapped}[dynamicMember: "{self.name}"].tuple{n}.{i})' for i, x in enumerate(self.type.__args__)]
+            wrapped = f'({", ".join(converted)})'
+            return wrapped
+        else:
+            return f'{self.mapped_type}({wrapped}[dynamicMember: "{self.name}"])'
+
+    @property
+    def wrapped_return(self):
+        return self._wrapped_return('wrappedInstance')
+
+    @property
+    def wrapped_return_static(self):
+        return self._wrapped_return('wrappedClass')
+
+    @property
+    def wrapped_return_module(self):
+        return self._wrapped_return('wrappedModule')
+
 
 class Function(NamedTuple):
     name: str
@@ -50,7 +71,7 @@ class Function(NamedTuple):
     @property
     def tuple_return(self) -> str:
         if self.return_type.__class__ == type(Tuple):
-            return f'tuple{len(self.return_type.__args__[0])}'
+            return f'.tuple{len(self.return_type.__args__)}'
         else:
             return ''
 
@@ -65,6 +86,15 @@ class Function(NamedTuple):
     @property
     def module_function(self):
         return self.cls == 'modulefunction'
+
+    @property
+    def wrapped_return(self) -> str:
+        if self.return_type.__class__ == type(Tuple):
+            converted = [f'{_convert_to_swift_type(x)}(val.{i})' for i, x in enumerate(self.return_type.__args__)]
+            wrapped = f'({", ".join(converted)})'
+            return wrapped
+        else:
+            return f'{self.mapped_return_type}(val)'
 
 
 class SwiftClass(NamedTuple):

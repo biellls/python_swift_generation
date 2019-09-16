@@ -76,12 +76,21 @@ def create_module_orm(module) -> SwiftModule:
         module_name=module.__name__,
         vars=[NameAndType(name=k, type=v) for k, v in getattr(module, '__annotations__', {}).items()],
         functions=get_module_functions(module),
-        classes=get_module_classes(module)
+        classes=get_module_classes(module),
     )
 
 
 def is_static_method(cls, name: str) -> bool:
-    return cls.__dict__[name].__class__ == staticmethod or cls.__dict__[name].__class__ == classmethod
+    method_class = None
+    for c in [cls, *getattr(cls, '__bases__', [])]:
+        try:
+            method_class = c.__dict__[name].__class__
+            break
+        except KeyError:
+            pass
+    if method_class is None:
+        raise ValueError(f'Method {name} not found in class {cls} or any of its superclasses')
+    return method_class == staticmethod or method_class == classmethod
 
 
 def get_functions(cls) -> List[Function]:
@@ -237,6 +246,7 @@ def create_class_orm(cls) -> SwiftClass:
         init_params=init_params,
         methods=get_functions(cls),
         magic_methods=get_magic_methods(cls),
+        positional_args='CPython' in get_swift_wrapper_annotations(cls)
     )
 
 

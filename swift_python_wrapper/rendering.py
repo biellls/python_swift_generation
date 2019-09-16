@@ -105,6 +105,7 @@ class SwiftClass(NamedTuple):
     init_params: List[List[NameAndType]]
     methods: List[Function]
     magic_methods: 'MagicMethods'
+    positional_args: bool = False
 
     @property
     def swift_object_name(self):

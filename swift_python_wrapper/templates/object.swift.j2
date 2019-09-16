@@ -1,7 +1,9 @@
 {% macro function_args_definition(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.mapped_type }}{% if arg.has_default_value %} = {{ arg.mapped_default_value }}{% endif %}{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
+{% macro function_positional_args_definition(args) %}{% for arg in args %}_ {{ arg.name }}: {{ arg.mapped_type }}{% if arg.has_default_value %} = {{ arg.mapped_default_value }}{% endif %}{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
 {% macro function_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}.wrappedInstance{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
+{% macro function_positional_args_call(args) %}{% for arg in args %}{{ arg.name }}.wrappedInstance{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
 {% macro init_named_args_call(args) %}{% for arg in args %}{{ arg.name }}: {{ arg.name }}.wrappedInstance{{ ", " if not loop.last }}{% endfor %}{% endmacro %}
-{% macro wrapped_return(method) %}let val = {{ 'wrappedClass' if method.static_method else 'wrappedInstance' }}[dynamicMember: "{{ method.name }}"]({{ function_named_args_call(method.args) }})
+{% macro wrapped_return(method) %}let val = {{ 'wrappedClass' if method.static_method else 'wrappedInstance' }}[dynamicMember: "{{ method.name }}"]({{ function_named_args_call(method.args) if not positional_args else function_positional_args_call(method.args) }})
 {% if method.return_type and method.mapped_return_type.endswith('?') %}
         if val == Python.None { return nil } else { return {{ method.mapped_return_type.replace('?', '') }}(val) }
 {%- elif method.return_type %}
@@ -37,9 +39,9 @@ struct {{ swift_object_name }}: TPobject, CustomStringConvertible {
     @discardableResult
     {% endif %}
     {% if method.static_method %}
-    static func {{ method.name }}({{ function_args_definition(method.args) }}) -> {% if method.return_type %}{{ method.mapped_return_type }}{% else %}PythonObject{% endif %} {
+    static func {{ method.name }}({{ function_args_definition(method.args) if not positional_args else function_positional_args_definition(method.args) }}) -> {% if method.return_type %}{{ method.mapped_return_type }}{% else %}PythonObject{% endif %} {
     {% else %}
-    func {{ method.name }}({{ function_args_definition(method.args) }}) -> {% if method.return_type %}{{ method.mapped_return_type }}{% else %}PythonObject{% endif %} {
+    func {{ method.name }}({{ function_args_definition(method.args) if not positional_args else function_positional_args_definition(method.args) }}) -> {% if method.return_type %}{{ method.mapped_return_type }}{% else %}PythonObject{% endif %} {
     {% endif %}
         {{ wrapped_return(method) }}
     }

@@ -1,4 +1,4 @@
-from typing import Union, overload, List
+from typing import Union, overload, List, Generic, TypeVar
 
 
 class ComplexClass1:
@@ -23,4 +23,14 @@ class ComplexClass2:
 class ComplexClass3:
     # SWIFT_WRAPPER.ComplexClass3: ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral
     def foo(self, x: List[str]) -> List[str]:
+        pass
+
+
+T = TypeVar('T')
+V = TypeVar('V')
+
+
+class ComplexClass4(Generic[T]):
+    # SWIFT_WRAPPER.ComplexClass4: CPython
+    def foo(self, x: T, y: V) -> V:
         pass

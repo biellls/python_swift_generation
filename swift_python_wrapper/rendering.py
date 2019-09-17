@@ -1,6 +1,6 @@
 import inspect
 from pathlib import Path
-from typing import NamedTuple, List, Optional, Any, Union, _ForwardRef, Tuple, Sequence
+from typing import NamedTuple, List, Optional, Any, Union, _ForwardRef, Tuple, Sequence, Generic
 
 import jinja2 as jinja2
 
@@ -106,6 +106,7 @@ class SwiftClass(NamedTuple):
     methods: List[Function]
     magic_methods: 'MagicMethods'
     positional_args: bool = False
+    generic: Optional[type] = None
 
     @property
     def swift_object_name(self):
@@ -114,6 +115,10 @@ class SwiftClass(NamedTuple):
     @property
     def python_module_name(self):
         return self.module.replace('.stub', '')
+
+    @property
+    def type_vars(self) -> Optional[List[str]]:
+        return None if self.generic is None else [x for x in self.generic.__parameters__]
 
     @property
     def as_dict(self):

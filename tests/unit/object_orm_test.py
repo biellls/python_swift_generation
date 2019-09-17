@@ -1,8 +1,8 @@
-from typing import Any, Optional, List
+from typing import Any, Optional, List, TypeVar
 
 import mock
 
-from samples.complex import ComplexClass1, ComplexClass2, ComplexClass3
+from samples.complex import ComplexClass1, ComplexClass2, ComplexClass3, ComplexClass4
 from swift_python_wrapper.core import create_class_orm
 from swift_python_wrapper.rendering import SwiftClass, NameAndType, Function, MagicMethods, BinaryMagicMethod, \
     UnaryMagicMethod, ExpressibleByLiteralProtocol
@@ -109,3 +109,23 @@ def test_complex_create_object_orm3():
         ExpressibleByLiteralProtocol('ExpressibleByIntegerLiteral', literal_type='Int'),
         ExpressibleByLiteralProtocol('ExpressibleByFloatLiteral', literal_type='Double'),
     ]
+
+
+def test_complex_create_object_orm4():
+    swift_obj = create_class_orm(ComplexClass4)
+    assert swift_obj == SwiftClass(
+        object_name='ComplexClass4',
+        module='samples.complex',
+        static_vars=[],
+        instance_vars=[],
+        init_params=[[]],
+        methods=[
+            Function(name='foo', args=[NameAndType('x', mock.ANY), NameAndType('y', mock.ANY)], return_type=mock.ANY, cls='instancemethod'),
+        ],
+        magic_methods=mock.ANY,
+        generic=mock.ANY,
+        positional_args=True,
+    )
+    foo = swift_obj.methods[0]
+    assert foo.return_type == foo.args[1].type
+    assert swift_obj.type_vars == [foo.args[0].type]

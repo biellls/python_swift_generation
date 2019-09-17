@@ -246,7 +246,8 @@ def create_class_orm(cls) -> SwiftClass:
         init_params=init_params,
         methods=get_functions(cls),
         magic_methods=get_magic_methods(cls),
-        positional_args='CPython' in get_swift_wrapper_annotations(cls)
+        positional_args='CPython' in get_swift_wrapper_annotations(cls),
+        generic=getattr(cls, '__orig_bases__', [[]])[0]
     )
 
 

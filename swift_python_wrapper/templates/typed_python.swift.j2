@@ -2,6 +2,9 @@ import PythonKit
 
 public let TPython = TypedPythonInterface()
 
+typealias TPbool = Bool
+typealias TPlist = List<TPobject>
+
 protocol TPobject {
     static var wrappedClass: PythonObject { get }
     var wrappedInstance: PythonObject { get }

@@ -43,6 +43,8 @@ class NameAndType(NamedTuple):
             converted = [f'{_convert_to_swift_type(x)}({wrapped}[dynamicMember: "{self.name}"].tuple{n}.{i})' for i, x in enumerate(self.type.__args__)]
             wrapped = f'({", ".join(converted)})'
             return wrapped
+        elif self.type.__class__ == bool:
+            return f'Bool({wrapped}[dynamicMember: "{self.name}"])'
         else:
             return f'{self.mapped_type}({wrapped}[dynamicMember: "{self.name}"])'
 
@@ -98,6 +100,8 @@ class Function(NamedTuple):
             converted = [f'{_convert_to_swift_type(x)}(val.{i})' for i, x in enumerate(self.return_type.__args__)]
             wrapped = f'({", ".join(converted)})'
             return wrapped
+        elif self.return_type.__class__ == bool:
+            return 'Bool(val)'
         elif self.return_type.__class__ == TypeVar:
             return f'{self.mapped_return_type}.init(val)'
         else:

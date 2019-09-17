@@ -128,7 +128,8 @@ def test_complex_create_object_orm4():
         positional_args=False,
     )
     identity = swift_obj.methods[0]
-    assert identity.return_type == identity.args[0].type
+    assert identity.mapped_return_type == 'TPList<V>'
+    assert identity.args[0].mapped_type == 'TPList<V>'
     shape = swift_obj.instance_vars[2]
     assert shape.type == Tuple[int, swift_obj.type_vars[0]]
     assert swift_obj.render_type_vars() == '<T: TPobject>'

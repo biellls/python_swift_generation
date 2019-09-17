@@ -1,4 +1,5 @@
 import inspect
+import re
 from pathlib import Path
 from typing import NamedTuple, List, Optional, Any, Union, _ForwardRef, Tuple, Sequence, Generic, TypeVar, GenericMeta
 
@@ -142,6 +143,7 @@ class SwiftClass(NamedTuple):
     def render(self):
         return _render('object.swift.j2', dict(
             rendered_magic_methods=self.render_magic_methods(),
+            type_vars=self.type_vars,
             rendered_type_vars=self.render_type_vars(),
             **self.as_dict,
         ))
@@ -172,6 +174,11 @@ class SwiftModule(NamedTuple):
 def _convert_to_swift_type(python_type) -> str:
     if python_type == Any or python_type == type(None) or python_type == inspect.Parameter.empty:
         return 'TPobject'
+    elif isinstance(python_type, str) and python_type in ['T', 'V', 'G']:
+        return python_type
+    elif isinstance(python_type, str) and re.match(r'\w+\[\w+]', python_type):
+        t, tv = re.match(r'(\w+)\[(\w+)]', python_type).groups()
+        return f'TP{t}<{_convert_to_swift_type(tv)}>'
     elif isinstance(python_type, str):
         return f'TP{python_type}'
     elif python_type.__class__ == type(Union) and python_type.__args__[1] == type(None):

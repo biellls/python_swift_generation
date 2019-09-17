@@ -43,5 +43,5 @@ class ComplexClass4(Generic[T]):
         return self.a, self.b
 
     # noinspection PyMethodMayBeStatic
-    def identity(self, val: V) -> V:
+    def identity(self, val: List[V]) -> 'List[V]':
         return val

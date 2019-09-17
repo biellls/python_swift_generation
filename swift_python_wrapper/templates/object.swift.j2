@@ -14,6 +14,9 @@
 {% endmacro %}
 
 struct {{ swift_object_name }}{{ rendered_type_vars }}: TPobject, CustomStringConvertible {
+    {% if magic_methods.ExpressibleByArrayLiteral %}
+    typealias Element = {{ type_vars[0].__name__ }}
+    {% endif %}
     {% if self.generic is none %}
     static let wrappedClass = Python.import("{{ python_module_name }}").{{object_name}}
     {% else %}

@@ -26,11 +26,11 @@ extension {{ swift_object_name }} {
 extension {{ swift_object_name }} {
     subscript(index: {{ magic_methods.getitem__.index_type | convert_to_swift_type }}) -> {{ magic_methods.getitem__.return_type | convert_to_swift_type }} {
         get {
-            return {{ magic_methods.getitem__.return_type | convert_to_swift_type }}({{ swift_object_name }}.wrappedClass.__get_item__(index.wrappedInstance))
+            return {{ magic_methods.getitem__.return_type | convert_to_swift_type }}(wrappedInstance.__getitem__(index.wrappedInstance))
         }
         {% if magic_methods.setitem__ %}
         set(newValue) {
-            {{ swift_object_name }}.wrappedClass.__set_item__(index.wrappedInstance, newValue.wrappedInstance)
+            wrappedInstance.__setitem__(index.wrappedInstance, newValue.wrappedInstance)
         }
         {% endif %}
     }

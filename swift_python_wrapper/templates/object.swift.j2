@@ -18,9 +18,9 @@ struct {{ swift_object_name }}{{ rendered_type_vars }}: TPobject, CustomStringCo
     typealias Element = {{ type_vars[0].__name__ }}
     {% endif %}
     {% if self.generic is none %}
-    static let wrappedClass = Python.import("{{ python_module_name }}").{{object_name}}
+    static let wrappedClass = Python.import("{{ python_module_name }}").{{ object_name|lower if python_module_name == "builtins" else object_name }}
     {% else %}
-    static var wrappedClass: PythonObject { Python.import("{{ python_module_name }}").{{object_name}} }
+    static var wrappedClass: PythonObject { Python.import("{{ python_module_name }}").{{ object_name|lower if python_module_name == "builtins" else object_name }} }
     {% endif %}
     let wrappedInstance: PythonObject
 

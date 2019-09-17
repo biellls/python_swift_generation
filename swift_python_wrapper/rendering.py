@@ -1,6 +1,6 @@
 import inspect
 from pathlib import Path
-from typing import NamedTuple, List, Optional, Any, Union, _ForwardRef, Tuple, Sequence, Generic, TypeVar
+from typing import NamedTuple, List, Optional, Any, Union, _ForwardRef, Tuple, Sequence, Generic, TypeVar, GenericMeta
 
 import jinja2 as jinja2
 
@@ -181,8 +181,8 @@ def _convert_to_swift_type(python_type) -> str:
     elif python_type.__class__ == type(Tuple):
         args = [_convert_to_swift_type(x) for x in python_type.__args__]
         return f'({", ".join(args)})'
-    elif python_type.__class__ == type(List):
-        return f'TPList<{_convert_to_swift_type(python_type.__args__[0])}>'
+    elif python_type.__class__ == GenericMeta:
+        return f'TP{python_type.__name__}<{_convert_to_swift_type(python_type.__args__[0])}>'
     elif python_type.__class__ == type(Sequence):
         return f'TPSequence<{_convert_to_swift_type(python_type.__args__[0])}>'
     elif isinstance(python_type, _ForwardRef):
@@ -217,6 +217,7 @@ class ExpressibleByLiteralProtocol(NamedTuple):
             'Int': 'integerLiteral',
             'String': 'stringLiteral',
             'Bool': 'booleanLiteral',
+            'Array': 'arrayLiteral',
         }
         return mappings[self.literal_type]
 
@@ -259,6 +260,7 @@ class MagicMethods(NamedTuple):
     ExpressibleByFloatLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
     ExpressibleByStringLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
     ExpressibleByBooleanLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
+    ExpressibleByArrayLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
 
     @property
     def unary_magic_methods(self) -> List[UnaryMagicMethod]:
@@ -280,7 +282,7 @@ class MagicMethods(NamedTuple):
     def expressible_by_literals(self) -> List[ExpressibleByLiteralProtocol]:
         result = []
         for v in self._asdict().values():
-            if isinstance(v, ExpressibleByLiteralProtocol):
+            if isinstance(v, ExpressibleByLiteralProtocol) and v.protocol_name != 'ExpressibleByArrayLiteral':
                 result.append(v)
         return result
 

@@ -45,3 +45,14 @@ extension {{ swift_object_name }}: {{ ebl.protocol_name }} {
 }
 
 {% endfor %}
+{% if magic_methods.ExpressibleByArrayLiteral %}
+extension {{ swift_object_name }}: ExpressibleByArrayLiteral {
+  init(arrayLiteral: Element...) {
+        self.wrappedInstance = Python.list()
+        for element in arrayLiteral {
+            self.wrappedInstance.append(element.wrappedClass(element))
+        }
+    }
+}
+{% endif %}
+

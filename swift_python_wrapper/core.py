@@ -171,6 +171,7 @@ expressible_by_literal_protocols = {
     'ExpressibleByFloatLiteral': 'Double',
     'ExpressibleByBooleanLiteral': 'Bool',
     'ExpressibleByStringLiteral': 'String',
+    'ExpressibleByArrayLiteral': 'Array',
 }
 
 

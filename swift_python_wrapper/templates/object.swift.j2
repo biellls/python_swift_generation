@@ -13,8 +13,12 @@
 {%- endif %}
 {% endmacro %}
 
-struct {{ swift_object_name }}: TPobject, CustomStringConvertible {
+struct {{ swift_object_name }}{{ rendered_type_vars }}: TPobject, CustomStringConvertible {
+    {% if self.generic is none %}
     static let wrappedClass = Python.import("{{ python_module_name }}").{{object_name}}
+    {% else %}
+    static var wrappedClass: PythonObject { Python.import("{{ python_module_name }}").{{object_name}} }
+    {% endif %}
     let wrappedInstance: PythonObject
 
     {% for static_var in static_vars %}
@@ -39,9 +43,9 @@ struct {{ swift_object_name }}: TPobject, CustomStringConvertible {
     @discardableResult
     {% endif %}
     {% if method.static_method %}
-    static func {{ method.name }}({{ function_args_definition(method.args) if not positional_args else function_positional_args_definition(method.args) }}) -> {% if method.return_type %}{{ method.mapped_return_type }}{% else %}PythonObject{% endif %} {
+    static func {{ method.name }}{{ method.render_type_vars() }}({{ function_args_definition(method.args) if not positional_args else function_positional_args_definition(method.args) }}) -> {% if method.return_type %}{{ method.mapped_return_type }}{% else %}PythonObject{% endif %} {
     {% else %}
-    func {{ method.name }}({{ function_args_definition(method.args) if not positional_args else function_positional_args_definition(method.args) }}) -> {% if method.return_type %}{{ method.mapped_return_type }}{% else %}PythonObject{% endif %} {
+    func {{ method.name }}{{ method.render_type_vars() }}({{ function_args_definition(method.args) if not positional_args else function_positional_args_definition(method.args) }}) -> {% if method.return_type %}{{ method.mapped_return_type }}{% else %}PythonObject{% endif %} {
     {% endif %}
         {{ wrapped_return(method) }}
     }

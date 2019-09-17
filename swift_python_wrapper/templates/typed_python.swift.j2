@@ -5,6 +5,8 @@ public let TPython = TypedPythonInterface()
 protocol TPobject {
     static var wrappedClass: PythonObject { get }
     var wrappedInstance: PythonObject { get }
+
+    init(_ po: PythonObject)
 }
 
 public class TypedPythonInterface {

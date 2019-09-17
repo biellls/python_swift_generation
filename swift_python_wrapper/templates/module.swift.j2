@@ -32,6 +32,7 @@ class {{ swift_class_name }} {
     {% endfor %}
 
     {% for cls in classes %}
+    {% if cls.generic is not none %}
     let {{ cls.object_name }} = {{ cls.swift_object_name }}.self
 
     {% for init_args in cls.init_params %}
@@ -40,5 +41,6 @@ class {{ swift_class_name }} {
     }
 
     {% endfor %}
+    {% endif %}
     {% endfor %}
 }

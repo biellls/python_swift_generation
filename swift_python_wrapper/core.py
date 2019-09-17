@@ -219,7 +219,7 @@ def get_magic_methods(cls) -> MagicMethods:
 def get_swift_wrapper_annotations(cls) -> List[str]:
     result = []
     for line in inspect.getsource(cls).splitlines(keepends=False):
-        for match in re.finditer(r'#\s*SWIFT_WRAPPER(\.\w+):\s*(\w+(?:\s*,\s*\w+)?)', inspect.getsource(cls)):
+        for match in re.finditer(r'#\s*SWIFT_WRAPPER(\.\w+):\s*(\w+(?:\s*,\s*\w+)*)', line):
             annotated_class, protocols = match.groups()
             result += [x.strip() for x in protocols.split(',')]
     return result
@@ -234,7 +234,7 @@ def get_init_params(cls) -> List[List[NameAndType]]:
 def create_class_orm(cls) -> SwiftClass:
     static_vars = [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items() if getattr(cls, k, False)]
     instance_vars = \
-        [NameAndType(name=x, type=None) for x in cls.__slots__] if hasattr(cls, '__slots__') else [] + \
+        ([NameAndType(name=x, type=None) for x in cls.__slots__] if hasattr(cls, '__slots__') else []) + \
         [NameAndType(name=k, type=v) for k, v in getattr(cls, '__annotations__', {}).items()] + \
         [NameAndType(name, type=getattr(prop.fget, '__annotations__', {}).get('return')) for name, prop in inspect.getmembers(cls, lambda o: isinstance(o, property))]
     init_params = get_init_params(cls)
@@ -247,7 +247,7 @@ def create_class_orm(cls) -> SwiftClass:
         methods=get_functions(cls),
         magic_methods=get_magic_methods(cls),
         positional_args='CPython' in get_swift_wrapper_annotations(cls),
-        generic=getattr(cls, '__orig_bases__', [[]])[0]
+        generic=getattr(cls, '__orig_bases__', [None])[0]
     )
 
 

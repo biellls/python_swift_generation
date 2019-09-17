@@ -1,4 +1,4 @@
-from typing import Any, Optional, List, TypeVar
+from typing import Any, Optional, List, TypeVar, Tuple
 
 import mock
 
@@ -14,7 +14,7 @@ def test_simple_create_object_orm():
         object_name='BasicClass',
         module='samples.basic',
         static_vars=[NameAndType(name='dimensions', type=int)],
-        instance_vars=[NameAndType(name='x', type=None), NameAndType(name='y', type=None)],
+        instance_vars=[NameAndType(name='x', type=None), NameAndType(name='y', type=None), NameAndType('dimensions', type=int)],
         init_params=[[NameAndType(name='x', type=float), NameAndType(name='y', type=float)]],
         methods=[Function(name='magnitude', args=[], return_type=float, cls='instancemethod')],
         magic_methods=mock.ANY,
@@ -103,6 +103,7 @@ def test_complex_create_object_orm3():
             Function(name='foo', args=[NameAndType('x', List[str])], return_type=List[str], cls='instancemethod'),
         ],
         magic_methods=mock.ANY,
+        positional_args=True,
     )
     assert swift_obj.methods[0].mapped_return_type == 'TPList<TPstr>'
     assert swift_obj.magic_methods.expressible_by_literals == [
@@ -117,15 +118,17 @@ def test_complex_create_object_orm4():
         object_name='ComplexClass4',
         module='samples.complex',
         static_vars=[],
-        instance_vars=[],
-        init_params=[[]],
+        instance_vars=[NameAndType('a', int), NameAndType('b', mock.ANY), NameAndType('shape', mock.ANY)],
+        init_params=[[NameAndType('a', int), NameAndType('b', mock.ANY)]],
         methods=[
-            Function(name='foo', args=[NameAndType('x', mock.ANY), NameAndType('y', mock.ANY)], return_type=mock.ANY, cls='instancemethod'),
+            Function(name='identity', args=[NameAndType('val', mock.ANY)], return_type=mock.ANY, cls='instancemethod'),
         ],
         magic_methods=mock.ANY,
         generic=mock.ANY,
-        positional_args=True,
+        positional_args=False,
     )
-    foo = swift_obj.methods[0]
-    assert foo.return_type == foo.args[1].type
-    assert swift_obj.type_vars == [foo.args[0].type]
+    identity = swift_obj.methods[0]
+    assert identity.return_type == identity.args[0].type
+    shape = swift_obj.instance_vars[2]
+    assert shape.type == Tuple[int, swift_obj.type_vars[0]]
+    assert swift_obj.render_type_vars() == '<T: TPobject>'

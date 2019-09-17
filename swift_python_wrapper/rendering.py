@@ -1,6 +1,6 @@
 import inspect
 from pathlib import Path
-from typing import NamedTuple, List, Optional, Any, Union, _ForwardRef, Tuple, Sequence, Generic
+from typing import NamedTuple, List, Optional, Any, Union, _ForwardRef, Tuple, Sequence, Generic, TypeVar
 
 import jinja2 as jinja2
 
@@ -75,6 +75,10 @@ class Function(NamedTuple):
         else:
             return ''
 
+    def render_type_vars(self):
+        type_vars = [x.type for x in self.args if x.type.__class__ == TypeVar]
+        return f'<{", ".join([f"{x.__name__}: TPobject" for x in type_vars])}>' if type_vars != [] else ''
+
     @property
     def static_method(self):
         return self.cls == 'staticmethod'
@@ -93,6 +97,8 @@ class Function(NamedTuple):
             converted = [f'{_convert_to_swift_type(x)}(val.{i})' for i, x in enumerate(self.return_type.__args__)]
             wrapped = f'({", ".join(converted)})'
             return wrapped
+        elif self.return_type.__class__ == TypeVar:
+            return f'{self.mapped_return_type}.init(val)'
         else:
             return f'{self.mapped_return_type}(val)'
 
@@ -118,17 +124,27 @@ class SwiftClass(NamedTuple):
 
     @property
     def type_vars(self) -> Optional[List[str]]:
-        return None if self.generic is None else [x for x in self.generic.__parameters__]
+        return None if self.generic is None else self.generic.__parameters__
 
     @property
     def as_dict(self):
         return dict(swift_object_name=self.swift_object_name, python_module_name=self.python_module_name, **self._asdict())
 
+    def render_type_vars(self):
+        if self.generic is not None:
+            return f'<{", ".join([f"{x.__name__}: TPobject" for x in self.type_vars])}>'
+        else:
+            return ''
+
     def render_magic_methods(self):
         return _render('magic_methods.swift.j2', self.as_dict)
 
     def render(self):
-        return _render('object.swift.j2', dict(rendered_magic_methods=self.render_magic_methods(), **self.as_dict))
+        return _render('object.swift.j2', dict(
+            rendered_magic_methods=self.render_magic_methods(),
+            rendered_type_vars=self.render_type_vars(),
+            **self.as_dict,
+        ))
 
 
 class SwiftModule(NamedTuple):
@@ -160,6 +176,8 @@ def _convert_to_swift_type(python_type) -> str:
         return f'TP{python_type}'
     elif python_type.__class__ == type(Union) and python_type.__args__[1] == type(None):
         return _convert_to_swift_type(python_type.__args__[0]) + '?'
+    elif python_type.__class__ == TypeVar:
+        return python_type.__name__
     elif python_type.__class__ == type(Tuple):
         args = [_convert_to_swift_type(x) for x in python_type.__args__]
         return f'({", ".join(args)})'

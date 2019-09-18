@@ -68,7 +68,7 @@ extension {{ swift_object_name }}: Sequence {
       if index < length {
         let val = pythonIterator[index]
         index += 1
-        return T.init(val)
+        return Element.init(val)
       } else{
         return nil
       }

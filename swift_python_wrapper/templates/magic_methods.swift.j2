@@ -56,6 +56,19 @@ extension {{ swift_object_name }}: ExpressibleByArrayLiteral {
 }
 
 {% endif %}
+{% if magic_methods.ExpressibleByDictionaryLiteral %}
+extension {{ swift_object_name }}: ExpressibleByDictionaryLiteral {
+  typealias Key = T
+  typealias Value = V
+  init(dictionaryLiteral elements: (Key, Value)...) {
+    self.wrappedInstance = Python.dict()
+    for (k, v) in elements {
+        self.wrappedInstance.__setitem__(k.wrappedInstance, v.wrappedInstance)
+    }
+  }
+}
+
+{% endif %}
 {% if magic_methods.Sequence %}
 extension {{ swift_object_name }}: Sequence {
   public struct Iterator : IteratorProtocol {

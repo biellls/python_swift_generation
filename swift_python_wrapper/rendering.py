@@ -180,9 +180,10 @@ def _convert_to_swift_type(python_type) -> str:
         return 'TPobject'
     elif isinstance(python_type, str) and python_type in ['T', 'V', 'G']:
         return python_type
-    elif isinstance(python_type, str) and re.match(r'\w+\[\w+]', python_type):
-        t, tv = re.match(r'(\w+)\[(\w+)]', python_type).groups()
-        return f'TP{t}<{_convert_to_swift_type(tv)}>'
+    elif isinstance(python_type, str) and re.match(r'\w+\[(\w+(?:\s*,\s*\w+)*)]', python_type):
+        t, tvs = re.match(r'(\w+)\[(\w+(?:\s*,\s*\w+)*)]', python_type).groups()
+        converted_tvs = [_convert_to_swift_type(x.strip()) for x in tvs.split(',')]
+        return f'TP{t}<{", ".join(converted_tvs)}>'
     elif isinstance(python_type, str):
         return f'TP{python_type}'
     elif python_type.__class__ == type(Union) and python_type.__args__[1] == type(None):
@@ -267,12 +268,14 @@ class MagicMethods(NamedTuple):
     # Others
     context_manager: bool = False
     Sequence: bool = False
+    # DictLike: bool = False
     # Literal expressible protocols
     ExpressibleByIntegerLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
     ExpressibleByFloatLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
     ExpressibleByStringLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
     ExpressibleByBooleanLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
     ExpressibleByArrayLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
+    ExpressibleByDictionaryLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
 
     @property
     def unary_magic_methods(self) -> List[UnaryMagicMethod]:

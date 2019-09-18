@@ -172,6 +172,7 @@ expressible_by_literal_protocols = {
     'ExpressibleByBooleanLiteral': 'Bool',
     'ExpressibleByStringLiteral': 'String',
     'ExpressibleByArrayLiteral': 'Array',
+    'ExpressibleByDictionaryLiteral': 'Array',
 }
 
 
@@ -204,7 +205,11 @@ def get_magic_methods(cls) -> MagicMethods:
                 index_type=list(signature.parameters.items())[1][1].annotation,
                 return_type=signature.return_annotation if signature.return_annotation != inspect.Parameter.empty else None,
             )
-            magic_methods['Sequence'] = True
+            generic = getattr(cls, '__orig_bases__', [None])[0]
+            if generic and len(generic.__args__) == 1:
+                magic_methods['Sequence'] = True
+            # elif generic and len(generic.__args__) == 2:
+            #     magic_methods['DictLike'] = True
         elif func.__name__ == '__setitem__':
             magic_methods[func.__name__.lstrip('_')] = True
 

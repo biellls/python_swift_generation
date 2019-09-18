@@ -266,6 +266,7 @@ class MagicMethods(NamedTuple):
     iter__: bool = False
     # Others
     context_manager: bool = False
+    Sequence: bool = False
     # Literal expressible protocols
     ExpressibleByIntegerLiteral: Union[bool, ExpressibleByLiteralProtocol] = False
     ExpressibleByFloatLiteral: Union[bool, ExpressibleByLiteralProtocol] = False

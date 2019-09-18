@@ -54,5 +54,30 @@ extension {{ swift_object_name }}: ExpressibleByArrayLiteral {
         }
     }
 }
-{% endif %}
 
+{% endif %}
+{% if magic_methods.Sequence %}
+extension {{ swift_object_name }}: Sequence {
+  public struct Iterator : IteratorProtocol {
+    fileprivate let pythonIterator: PythonObject
+    fileprivate var length: Int { Int(Python.len(pythonIterator))! }
+    fileprivate var index: Int = 0
+
+
+    mutating public func next() -> Element? {
+      if index < length {
+        let val = pythonIterator[index]
+        index += 1
+        return T.init(val)
+      } else{
+        return nil
+      }
+    }
+  }
+
+  public func makeIterator() -> Iterator {
+    return Iterator(pythonIterator: self.wrappedInstance)
+  }
+}
+
+{% endif %}

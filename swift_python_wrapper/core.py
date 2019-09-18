@@ -204,6 +204,7 @@ def get_magic_methods(cls) -> MagicMethods:
                 index_type=list(signature.parameters.items())[1][1].annotation,
                 return_type=signature.return_annotation if signature.return_annotation != inspect.Parameter.empty else None,
             )
+            magic_methods['Sequence'] = True
         elif func.__name__ == '__setitem__':
             magic_methods[func.__name__.lstrip('_')] = True
 

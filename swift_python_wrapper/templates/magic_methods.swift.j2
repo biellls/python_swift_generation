@@ -2,7 +2,7 @@
 extension {{ swift_object_name }}{% if bmm.swift_protocol_name %}: {{ bmm.swift_protocol_name }}{% endif %} {
     {% for rhs_type, return_type in bmm.right_classes %}
     public static func {{ bmm.symbol }}(lhs: {{ swift_object_name }}, rhs: {{ rhs_type | convert_to_swift_type }}) -> {{ return_type | convert_to_swift_type }} {
-        return  {{ return_type | convert_to_swift_type }}(self.wrappedClass[dynamicMember: "{{ bmm.python_magic_method }}"](lhs.wrappedInstance, rhs.wrappedInstance))
+        return  {{ return_type | convert_to_swift_type }}(self.wrappedClass[dynamicMember: "{{ bmm.python_magic_method }}"](lhs.wrappedInstance, rhs.wrappedInstance)){{ return_type|force_unwrap }}
     }
     {% endfor %}
 }

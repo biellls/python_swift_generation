@@ -43,8 +43,8 @@ class NameAndType(NamedTuple):
             converted = [f'{_convert_to_swift_type(x)}({wrapped}[dynamicMember: "{self.name}"].tuple{n}.{i})' for i, x in enumerate(self.type.__args__)]
             wrapped = f'({", ".join(converted)})'
             return wrapped
-        elif self.type.__class__ == bool:
-            return f'Bool({wrapped}[dynamicMember: "{self.name}"])'
+        # elif self.type == bool:
+        #     return f'Bool({wrapped}[dynamicMember: "{self.name}"])!'
         else:
             return f'{self.mapped_type}({wrapped}[dynamicMember: "{self.name}"])'
 
@@ -100,8 +100,8 @@ class Function(NamedTuple):
             converted = [f'{_convert_to_swift_type(x)}(val.{i})' for i, x in enumerate(self.return_type.__args__)]
             wrapped = f'({", ".join(converted)})'
             return wrapped
-        elif self.return_type.__class__ == bool:
-            return 'Bool(val)'
+        # elif self.return_type == bool:
+        #     return 'Bool(val)!'
         elif self.return_type.__class__ == TypeVar:
             return f'{self.mapped_return_type}.init(val)'
         else:
@@ -298,6 +298,10 @@ class MagicMethods(NamedTuple):
         return result
 
 
+def force_unwrap(t):
+    return '!' if t == bool else ''
+
+
 def _render(template_name: str, context: dict):
     search_path = Path(__file__).parent / 'templates'
     template_loader = jinja2.FileSystemLoader(searchpath=str(search_path))
@@ -308,6 +312,7 @@ def _render(template_name: str, context: dict):
     template_env.keep_trailing_newline = True
 
     template_env.filters.update(convert_to_swift_type=_convert_to_swift_type)
+    template_env.filters.update(force_unwrap=force_unwrap)
 
     template = template_env.get_template(template_name)
     return template.render(context)
